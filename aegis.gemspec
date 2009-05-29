@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{aegis}
-  s.version = "0.0.1"
+  s.version = "1.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henning Koch"]
@@ -10,11 +10,12 @@ Gem::Specification.new do |s|
   s.description = %q{Aegis is a role-based permission system, where all users are given a role. It is possible to define detailed and complex permissions for each role very easily.}
   s.email = %q{github@makandra.de}
   s.extra_rdoc_files = [
-    "README"
+    "README.rdoc"
   ]
   s.files = [
-    "MIT-LICENSE",
-     "README",
+    ".gitignore",
+     "MIT-LICENSE",
+     "README.rdoc",
      "Rakefile",
      "VERSION",
      "aegis.gemspec",
@@ -44,6 +45,7 @@ Gem::Specification.new do |s|
      "test/app_root/db/migrate/20090408115228_create_users.rb",
      "test/app_root/db/migrate/20090429075648_create_soldiers.rb",
      "test/app_root/lib/console_with_fixtures.rb",
+     "test/app_root/log/.gitignore",
      "test/app_root/script/console",
      "test/has_role_options_test.rb",
      "test/has_role_test.rb",
