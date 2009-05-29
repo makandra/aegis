@@ -1,8 +1,18 @@
 = Aegis - role-based permissions for your user models
 
-Aegis allows you to managed fine-grained and complex permission for user accounts in a central place.
+Aegis allows you to manage fine-grained, complex permission for user accounts in a central place.
 
-=== Example 
+== Installation
+
+Add the following to your <tt>Initializer.run</tt> block in your <tt>environment.rb</tt>:
+    config.gem 'makandra-aegis', :lib => 'aegis', :source => 'http://gems.github.com'
+Then do a <tt>sudo rake gems:install</tt>
+
+Alternatively, use
+    sudo gem sources -a http://gems.github.com
+    sudo gem install makandra-aegis
+
+== Example 
 
 First, let's define some roles:
 
@@ -64,3 +74,86 @@ These permissions may be used in views and controllers:
       end
 
     end
+
+== Details
+
+To equip a (user) model with any permissions, you simply call *has_role* within
+the model:
+    class User < ActiveRecord::Base
+      has_role
+    end
+Aegis assumes that the corresponding database table has a string-valued column
+called +role_name+. You may override the name with the <tt>:name_accessor =>
+:my_role_column</tt> option.
+
+The roles and permissions themselves are defined in a class inheriting from
+<b>Aegis::Permissions</b>. To define roles you create a model <tt>permissions.rb</tt>
+and use the *role* method:
+    class Permissions < Aegis::Permissions
+      role 'role_name'
+    end
+
+By default, users belonging to this role are not permitted anything. You may
+override this with <tt>:default_permission => :allow</tt>, e.g.
+    role 'admin', :default_permission => :allow
+
+Permissions are specified with the *permission* method and *allow* and *deny*
+    permission :do_something do
+        allow :role_a, :role_b
+        deny :role_c
+    end
+
+Your user model just received two methods called <b>User#may_do_something?</b>
+and <b>User#may_do_something!</b>. The first one with the ? returns true for users with
++role_a+ and +role_b+, and false for users with +role_c+. The second one with the ! raises an
+Aegis::PermissionError for +role_c+.
+
+Aegis will perform some normalization. For example, the permissions
++edit_something+ and +update_something+ will be the same, each granting both 
+<tt>may_edit_something?</tt> and <tt>may_update_something?</tt>. The following normalizations
+are active:
+* edit = update
+* show = list = view = read
+* delete = remove = destroy
+ 
+*allow* and *deny* can also take a block that may return +true+ or +false+
+indicating if this really applies. So
+    permission :pull_april_fools_prank do
+      allow :everyone do
+        Date.today.month == 4 and Date.today.day == 1
+      end
+    end
+will generate a <tt>may_pull_april_fools_prank?</tt> method that only returns true on
+April 1.
+
+This becomes more useful if you pass parameters to a +may_...?+ method, which
+are passed through to the permission block (together with the user object). This
+way you can define more complex permissions like
+    permission :edit_post do |current_user, post|
+      allow :registered_user do
+        post.owner == current_user
+      end
+      allow :admin
+    end
+which will permit admins and post owners to edit posts.
+
+As a convenience, if you create a permission ending in a plural 's', this
+automatically includes the singular form. That is, after
+    permission :read_posts do
+      allow :everyone
+    end
+<tt>.may_read_post? @post</tt> will return true, as well.
+
+If you want to grant +create_something+, +read_something+, +update_something+
+and +destroy_something+ permissions all at once, just use
+    permission :crud_something do
+      allow :admin
+    end
+
+If several permission blocks (or several allow and denies) apply to a certain
+role, the later one always wins. That is
+    permission :do_something do
+      deny :everyone
+      allow :admin
+    end
+will work as expected.
