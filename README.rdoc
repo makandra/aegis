@@ -9,13 +9,13 @@ First, let's define some roles:
     # app/models/permissions.rb
     class Permissions < Aegis::Permissions
 
-      role :moderator
-      role :registered_user
       role :guest
+      role :registered_user
+      role :moderator
       role :administrator, :default_permission => :allow
       
       permission :edit_post do |user, post|
-        allow registered_user do
+        allow :registered_user do
           post.creator == user      # a registered_user can only edit his own posts
         end
         allow :moderator
@@ -31,12 +31,12 @@ First, let's define some roles:
     end
 
 
-Now we assign roles to users. For this, the users table needs to have a string foo
-column 'role_name'.
+Now we assign roles to users. For this, the users table needs to have a string
+column +role_name+.
 
     # app/models/user.rb
     class User
-        has_role
+      has_role
     end
 
 
@@ -59,8 +59,7 @@ These permissions may be used in views and controllers:
 
       def update
         @post = Post.find(params[:id])
-        current_user.may_edit_post! @post
-        
+        current_user.may_edit_post! @post    # raises an Aegis::PermissionError for unauthorized access
         # ...
       end
 
