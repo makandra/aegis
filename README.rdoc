@@ -168,3 +168,4 @@ role, the later one always wins. That is
       allow :admin
     end
 will work as expected.
+
