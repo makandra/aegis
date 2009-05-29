@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{aegis}
-  s.version = "1.1.0"
+  s.version = "1.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henning Koch"]
@@ -28,7 +28,6 @@ Gem::Specification.new do |s|
      "lib/aegis/permissions.rb",
      "lib/aegis/role.rb",
      "lib/rails/active_record.rb",
-     "pkg/aegis-0.0.0.gem",
      "test/app_root/app/controllers/application_controller.rb",
      "test/app_root/app/models/permissions.rb",
      "test/app_root/app/models/soldier.rb",
