@@ -1,0 +1,67 @@
+= Aegis - role-based permissions for your user models
+
+Aegis allows you to managed fine-grained and complex permission for user accounts in a central place.
+
+=== Example 
+
+First, let's define some roles:
+
+    # app/models/permissions.rb
+    class Permissions < Aegis::Permissions
+
+      role :moderator
+      role :registered_user
+      role :guest
+      role :administrator, :default_permission => :allow
+      
+      permission :edit_post do |user, post|
+        allow registered_user do
+          post.creator == user      # a registered_user can only edit his own posts
+        end
+        allow :moderator
+      end
+      
+      permission :read_post do |post|
+        allow :everyone
+        deny :guest do
+          post.private?             # guests may not read private posts
+        end
+      end
+
+    end
+
+
+Now we assign roles to users. For this, the users table needs to have a string foo
+column 'role_name'.
+
+    # app/models/user.rb
+    class User
+        has_role
+    end
+
+
+These permissions may be used in views and controllers:
+    
+    # app/views/posts/index.html.erb
+    @posts.each do |post|
+      <% if current_user.may_read_post? post %>
+        <%= render post %>
+        <% if current_user.may_edit_post? post %>
+          <%= link_to 'Edit', edit_post_path(post) %>
+        <% end %>
+      <% end %>
+    <% end %>
+
+
+    # app/controllers/posts_controller.rb
+    class PostsController
+      # ...
+
+      def update
+        @post = Post.find(params[:id])
+        current_user.may_edit_post! @post
+        
+        # ...
+      end
+
+    end
