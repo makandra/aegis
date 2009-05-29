@@ -6,7 +6,8 @@ Aegis allows you to manage fine-grained, complex permission for user accounts in
 
 Add the following to your <tt>Initializer.run</tt> block in your <tt>environment.rb</tt>:
     config.gem 'makandra-aegis', :lib => 'aegis', :source => 'http://gems.github.com'
-Then do a <tt>sudo rake gems:install</tt>
+Then do a 
+    sudo rake gems:install
 
 Alternatively, use
     sudo gem sources -a http://gems.github.com
@@ -77,6 +78,8 @@ These permissions may be used in views and controllers:
 
 == Details
 
+=== Roles
+
 To equip a (user) model with any permissions, you simply call *has_role* within
 the model:
     class User < ActiveRecord::Base
@@ -97,6 +100,8 @@ By default, users belonging to this role are not permitted anything. You may
 override this with <tt>:default_permission => :allow</tt>, e.g.
     role 'admin', :default_permission => :allow
 
+=== Permissions
+
 Permissions are specified with the *permission* method and *allow* and *deny*
     permission :do_something do
         allow :role_a, :role_b
@@ -108,6 +113,8 @@ and <b>User#may_do_something!</b>. The first one with the ? returns true for use
 +role_a+ and +role_b+, and false for users with +role_c+. The second one with the ! raises an
 Aegis::PermissionError for +role_c+.
 
+=== Normalization
+
 Aegis will perform some normalization. For example, the permissions
 +edit_something+ and +update_something+ will be the same, each granting both 
 <tt>may_edit_something?</tt> and <tt>may_update_something?</tt>. The following normalizations
@@ -115,6 +122,8 @@ are active:
 * edit = update
 * show = list = view = read
 * delete = remove = destroy
+
+=== Complex permissions (with parameters)
  
 *allow* and *deny* can also take a block that may return +true+ or +false+
 indicating if this really applies. So
@@ -126,7 +135,7 @@ indicating if this really applies. So
 will generate a <tt>may_pull_april_fools_prank?</tt> method that only returns true on
 April 1.
 
-This becomes more useful if you pass parameters to a +may_...?+ method, which
+This becomes more useful if you pass parameters to a <tt>may_...?</tt> method, which
 are passed through to the permission block (together with the user object). This
 way you can define more complex permissions like
     permission :edit_post do |current_user, post|
@@ -136,6 +145,8 @@ way you can define more complex permissions like
       allow :admin
     end
 which will permit admins and post owners to edit posts.
+
+=== For your convenience
 
 As a convenience, if you create a permission ending in a plural 's', this
 automatically includes the singular form. That is, after
