@@ -3,30 +3,27 @@ module Aegis
   
     def self.inherited(base)
       base.class_eval do
+        @roles_by_name = {}
+        @permission_blocks = Hash.new { |hash, key| hash[key] = [] }
         extend ClassMethods
       end
     end    
 
     module ClassMethods
     
-      @@roles_by_name = {}
-
-      # Example: @@permission_blocks[:update_users] = 
-	  #         [proc { allow :admin; deny :guest }, proc { deny :student }]
-	  @@permission_blocks = Hash.new { |hash, key| hash[key] = [] }
  
       def role(role_name, options = {})
         role_name = role_name.to_sym
         role_name != Aegis::Constants::EVERYONE_ROLE_NAME or raise "Cannot define a role named: #{Aegis::Constants::EVERYONE_ROLE_NAME}"
-        @@roles_by_name[role_name] = Aegis::Role.new(role_name, self, options)
+        @roles_by_name[role_name] = Aegis::Role.new(role_name, self, options)
       end
       
       def find_all_role_names
-        @@roles_by_name.keys
+        @roles_by_name.keys
       end
       
       def find_all_roles
-        @@roles_by_name.values.sort
+        @roles_by_name.values.sort
       end
       
       def find_role_by_name(name)
@@ -34,7 +31,7 @@ module Aegis
         if name.blank?
           nil
         else
-          @@roles_by_name[name.to_sym]
+          @roles_by_name[name.to_sym]
         end
       end
       
@@ -51,13 +48,13 @@ module Aegis
       
       def may?(role_or_role_name, permission, *args)
         role = role_or_role_name.is_a?(Aegis::Role) ? role_or_role_name : find_role_by_name(role_or_role_name)
-        blocks = @@permission_blocks[permission.to_sym]
+        blocks = @permission_blocks[permission.to_sym]
         evaluate_permission_blocks(role, blocks, *args)
       end
       
       def evaluate_permission_blocks(role, blocks, *args)
-		evaluator = Aegis::PermissionEvaluator.new(role)
-		evaluator.evaluate(blocks, args)
+    evaluator = Aegis::PermissionEvaluator.new(role)
+    evaluator.evaluate(blocks, args)
       end
       
       def denied?(*args)
@@ -89,8 +86,8 @@ module Aegis
           singular_target = target.singularize
           if singular_target.length < target.length
             singular_block = lambda do |*args|
-		      args.delete_at 1
-			  instance_exec(*args, &block)
+        args.delete_at 1
+        instance_exec(*args, &block)
             end
             singular_permission_name = "#{verb}_#{singular_target}"
             add_permission(singular_permission_name, &singular_block)
@@ -101,7 +98,7 @@ module Aegis
       
       def add_permission(permission_name, &block)
         permission_name = permission_name.to_sym
-        @@permission_blocks[permission_name] << block
+        @permission_blocks[permission_name] << block
       end
  
     end # module ClassMethods
