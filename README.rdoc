@@ -169,3 +169,8 @@ role, the later one always wins. That is
     end
 will work as expected.
 
+=== Credits
+
+Henning Koch, Tobias Kraze
+
+www.makandra.de
