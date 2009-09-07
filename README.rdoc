@@ -173,4 +173,4 @@ will work as expected.
 
 Henning Koch, Tobias Kraze
 
-www.makandra.de
+{link www.makandra.de}[http://www.makandra.de/]
