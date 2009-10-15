@@ -5,13 +5,13 @@ Aegis allows you to manage fine-grained, complex permission for user accounts in
 == Installation
 
 Add the following to your <tt>Initializer.run</tt> block in your <tt>environment.rb</tt>:
-    config.gem 'makandra-aegis', :lib => 'aegis', :source => 'http://gems.github.com'
+    config.gem 'aegis', :source => 'http://gemcutter.org'
 Then do a 
     sudo rake gems:install
 
 Alternatively, use
-    sudo gem sources -a http://gems.github.com
-    sudo gem install makandra-aegis
+    sudo gem sources -a http://gemcutter.org
+    sudo gem install aegis
 
 == Example 
 
