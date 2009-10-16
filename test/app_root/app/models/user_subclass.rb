@@ -1,0 +1,2 @@
+class UserSubclass < User
+end
