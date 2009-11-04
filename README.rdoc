@@ -169,6 +169,18 @@ role, the later one always wins. That is
     end
 will work as expected.
 
+=== Our stance on multiple roles per user
+
+We believe that you should only distinguish roles that have different ways of resolving their permissions. A typical set of roles would be
+
+* anonymous guest (has access to nothing with some exceptions)
+* signed up user (has access to some things depending on its attributes and associations)
+* administrator (has access to everything)
+
+We don't do multiple, parametrized roles like "leader for project #2" and "author of post #7". 
+That would be reinventing associations. Just use a single :user role and let your permission block
+query regular associations and attributes.
+
 === Credits
 
 Henning Koch, Tobias Kraze
