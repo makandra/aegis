@@ -21,15 +21,17 @@ module Aegis
     
       self.class_eval do
       
-        @aegis_role_name_reader = (options[:name_reader] || "role_name").to_sym
-        @aegis_role_name_writer = (options[:name_writer] || "role_name=").to_sym
-        
+        class_inheritable_accessor :aegis_role_name_reader, :aegis_role_name_writer
+
+        self.aegis_role_name_reader = (options[:name_reader] || "role_name").to_sym
+        self.aegis_role_name_writer = (options[:name_writer] || "role_name=").to_sym
+
         def aegis_role_name_reader
-          self.class.class_eval{ @aegis_role_name_reader }
+          self.class.class_eval{ aegis_role_name_reader }
         end
 
         def aegis_role_name_writer
-          self.class.class_eval{ @aegis_role_name_writer }
+          self.class.class_eval{ aegis_role_name_writer }
         end
 
         def aegis_role_name

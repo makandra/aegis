@@ -7,12 +7,14 @@ class HasRoleTest < ActiveSupport::TestCase
     setup do 
       @guest = User.new(:role_name => "guest")
       @student = User.new(:role_name => "student")
+      @student_subclass = UserSubclass.new(:role_name => "student")
       @admin = User.new(:role_name => "admin")
     end
     
     should "know their role" do
       assert :guest, @guest.role.name
       assert :student, @student.role.name
+      assert :student_subclass, @student.role.name
       assert :admin, @admin.role.name
     end
     
@@ -21,8 +23,11 @@ class HasRoleTest < ActiveSupport::TestCase
       assert !@guest.student?
       assert !@guest.admin?
       assert !@student.guest?
+      assert !@student_subclass.guest?
       assert @student.student?
+      assert @student_subclass.student?
       assert !@student.admin?
+      assert !@student_subclass.admin?
       assert !@admin.guest?
       assert !@admin.student?
       assert @admin.admin?
