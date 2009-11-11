@@ -1,5 +1,5 @@
 class Soldier < ActiveRecord::Base
 
-  has_role :name_accessor => "rank"
+  has_role :accessor => "rank"
 
 end

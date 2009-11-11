@@ -13,18 +13,28 @@ module Aegis
 
     def has_role(options = {})
     
-      if options[:name_accessor]
-        options[:name_reader] = "#{options[:name_accessor]}"
-        options[:name_writer] = "#{options[:name_accessor]}="
-        options.delete(:name_accessor)
+      # Legacy parameter names
+      options[:accessor] ||= options.delete(:name_accessor)
+      options[:reader] ||= options.delete(:name_reader)
+      options[:writer] ||= options.delete(:name_writer)
+    
+      if options[:accessor]
+        options[:reader] = "#{options[:accessor]}"
+        options[:writer] = "#{options[:accessor]}="
+        options.delete(:accessor)
       end
     
       self.class_eval do
       
-        class_inheritable_accessor :aegis_role_name_reader, :aegis_role_name_writer
+        class_inheritable_accessor :aegis_role_name_reader, :aegis_role_name_writer, :aegis_default_role_name
 
-        self.aegis_role_name_reader = (options[:name_reader] || "role_name").to_sym
-        self.aegis_role_name_writer = (options[:name_writer] || "role_name=").to_sym
+        if options[:default]
+          self.aegis_default_role_name = options[:default].to_s
+          after_initialize :set_default_aegis_role_name
+        end
+        
+        self.aegis_role_name_reader = (options[:reader] || "role_name").to_sym
+        self.aegis_role_name_writer = (options[:writer] || "role_name=").to_sym
 
         def aegis_role_name_reader
           self.class.class_eval{ aegis_role_name_reader }
@@ -69,6 +79,14 @@ module Aegis
         end
         
         alias_method_chain :method_missing, :aegis_permissions
+        
+        def set_default_aegis_role_name
+            puts "set default!!!!!!!!"
+          if new_record?
+            puts "set default!!!!!!!!"
+            self.aegis_role_name ||= self.class.aegis_default_role_name
+          end
+        end
         
       end
 

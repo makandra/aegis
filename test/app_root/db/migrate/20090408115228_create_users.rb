@@ -2,7 +2,7 @@ class CreateUsers < ActiveRecord::Migration
 
   def self.up
     create_table :users do |t|
-      t.string "role_name"
+      t.string :role_name
       t.timestamps
     end
   end

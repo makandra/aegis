@@ -10,7 +10,6 @@ module Aegis
     end    
 
     module ClassMethods
-    
  
       def role(role_name, options = {})
         role_name = role_name.to_sym
@@ -53,8 +52,8 @@ module Aegis
       end
       
       def evaluate_permission_blocks(role, blocks, *args)
-    evaluator = Aegis::PermissionEvaluator.new(role)
-    evaluator.evaluate(blocks, args)
+        evaluator = Aegis::PermissionEvaluator.new(role)
+        evaluator.evaluate(blocks, args)
       end
       
       def denied?(*args)
