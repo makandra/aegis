@@ -10,11 +10,12 @@ class HasRoleOptionsTest < ActiveSupport::TestCase
     
     should "allow its role to be written and read" do
       @soldier.role = "guest"
-      assert "guest", @soldier.role.name
+      assert_equal :guest, @soldier.role.name
     end
     
     should "store the role name in the custom field" do
-      assert "guest", @soldier.rank
+      @soldier.role = "guest"
+      assert_equal "guest", @soldier.rank
     end
     
     should "still work with permissions" do
@@ -33,7 +34,7 @@ class HasRoleOptionsTest < ActiveSupport::TestCase
     
     should "allow its role to be written and read" do
       @vetaran_soldier.role = "guest"
-      assert "guest", @vetaran_soldier.role.name
+      assert_equal :guest, @vetaran_soldier.role.name
     end
     
   end
@@ -41,10 +42,10 @@ class HasRoleOptionsTest < ActiveSupport::TestCase
   context "A record with a default role" do
   
     should "create new instances with that role" do
-      assert_equal "admin", TrustFundKid.new.role.name
+      assert_equal :admin, TrustFundKid.new.role.name
     end
   
-    should "create ignore the default if another role is given" do
+    should "ignore the default if another role is given" do
       assert_equal :student, TrustFundKid.new(:role_name => "student").role.name
     end
     

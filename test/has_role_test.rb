@@ -12,10 +12,10 @@ class HasRoleTest < ActiveSupport::TestCase
     end
     
     should "know their role" do
-      assert :guest, @guest.role.name
-      assert :student, @student.role.name
-      assert :student_subclass, @student.role.name
-      assert :admin, @admin.role.name
+      assert_equal :guest, @guest.role.name
+      assert_equal :student, @student.role.name
+      assert_equal :student, @student_subclass.role.name
+      assert_equal :admin, @admin.role.name
     end
     
     should "know if they belong to a role" do

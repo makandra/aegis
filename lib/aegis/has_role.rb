@@ -28,6 +28,11 @@ module Aegis
       
         class_inheritable_accessor :aegis_role_name_reader, :aegis_role_name_writer, :aegis_default_role_name
 
+        unless method_defined?(:after_initialize)
+          def after_initialize
+          end
+        end
+
         if options[:default]
           self.aegis_default_role_name = options[:default].to_s
           after_initialize :set_default_aegis_role_name
@@ -81,9 +86,7 @@ module Aegis
         alias_method_chain :method_missing, :aegis_permissions
         
         def set_default_aegis_role_name
-            puts "set default!!!!!!!!"
           if new_record?
-            puts "set default!!!!!!!!"
             self.aegis_role_name ||= self.class.aegis_default_role_name
           end
         end
