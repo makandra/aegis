@@ -89,6 +89,13 @@ Aegis assumes that the corresponding database table has a string-valued column
 called +role_name+. You may override the name with the <tt>:name_accessor =>
 :my_role_column</tt> option.
 
+You can define a default role for a model by saying
+    class User < ActiveRecord::Base
+      has_role :default => :admin
+    end
+All this will do, is initialize the +role_name+ with the given default when
++User.new+ is called.
+
 The roles and permissions themselves are defined in a class inheriting from
 <b>Aegis::Permissions</b>. To define roles you create a model <tt>permissions.rb</tt>
 and use the *role* method:
