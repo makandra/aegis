@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{aegis}
-  s.version = "1.1.4"
+  s.version = "1.1.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henning Koch"]
-  s.date = %q{2009-11-05}
+  s.date = %q{2009-11-11}
   s.description = %q{Aegis is a role-based permission system, where all users are given a role. It is possible to define detailed and complex permissions for each role very easily.}
   s.email = %q{github@makandra.de}
   s.extra_rdoc_files = [
@@ -29,10 +29,13 @@ Gem::Specification.new do |s|
      "lib/aegis/role.rb",
      "lib/rails/active_record.rb",
      "test/app_root/app/controllers/application_controller.rb",
+     "test/app_root/app/models/old_soldier.rb",
      "test/app_root/app/models/permissions.rb",
      "test/app_root/app/models/soldier.rb",
+     "test/app_root/app/models/trust_fund_kid.rb",
      "test/app_root/app/models/user.rb",
      "test/app_root/app/models/user_subclass.rb",
+     "test/app_root/app/models/veteran_soldier.rb",
      "test/app_root/config/boot.rb",
      "test/app_root/config/database.yml",
      "test/app_root/config/environment.rb",
@@ -44,6 +47,8 @@ Gem::Specification.new do |s|
      "test/app_root/config/routes.rb",
      "test/app_root/db/migrate/20090408115228_create_users.rb",
      "test/app_root/db/migrate/20090429075648_create_soldiers.rb",
+     "test/app_root/db/migrate/20091110075648_create_veteran_soldiers.rb",
+     "test/app_root/db/migrate/20091110075649_create_trust_fund_kids.rb",
      "test/app_root/lib/console_with_fixtures.rb",
      "test/app_root/log/.gitignore",
      "test/app_root/script/console",
@@ -59,9 +64,12 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{Role-based permissions for your user models.}
   s.test_files = [
-    "test/app_root/app/models/permissions.rb",
+    "test/app_root/app/models/trust_fund_kid.rb",
+     "test/app_root/app/models/veteran_soldier.rb",
+     "test/app_root/app/models/permissions.rb",
      "test/app_root/app/models/soldier.rb",
      "test/app_root/app/models/user_subclass.rb",
+     "test/app_root/app/models/old_soldier.rb",
      "test/app_root/app/models/user.rb",
      "test/app_root/app/controllers/application_controller.rb",
      "test/app_root/config/environment.rb",
@@ -74,6 +82,8 @@ Gem::Specification.new do |s|
      "test/app_root/config/routes.rb",
      "test/app_root/db/migrate/20090429075648_create_soldiers.rb",
      "test/app_root/db/migrate/20090408115228_create_users.rb",
+     "test/app_root/db/migrate/20091110075649_create_trust_fund_kids.rb",
+     "test/app_root/db/migrate/20091110075648_create_veteran_soldiers.rb",
      "test/app_root/lib/console_with_fixtures.rb",
      "test/validation_test.rb",
      "test/test_helper.rb",
