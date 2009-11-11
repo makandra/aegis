@@ -70,7 +70,7 @@ module Aegis
         end
         
         private
-    
+        
         # Delegate may_...? and may_...! methods to the user's role.
         def method_missing_with_aegis_permissions(symb, *args)
           method_name = symb.to_s
@@ -84,6 +84,16 @@ module Aegis
         end
         
         alias_method_chain :method_missing, :aegis_permissions
+        
+        def respond_to_with_aegis_permissions?(symb, include_private = false)
+          if symb.to_s =~ /^may_(.+?)[\!\?]$/
+            true
+          else
+            respond_to_without_aegis_permissions?(symb, include_private)
+          end
+        end
+        
+        alias_method_chain :respond_to?, :aegis_permissions
         
         def set_default_aegis_role_name
           if new_record?
