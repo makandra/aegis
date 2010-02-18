@@ -96,8 +96,8 @@ module Aegis
         alias_method_chain :respond_to?, :aegis_permissions
         
         def set_default_aegis_role_name
-          if new_record?
-            self.aegis_role_name ||= self.class.aegis_default_role_name
+          if new_record? && self.aegis_role_name.blank?
+            self.aegis_role_name = self.class.aegis_default_role_name
           end
         end
         
