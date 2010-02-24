@@ -3,7 +3,7 @@ module Aegis
   
     def validates_role_name(options = {})
       validates_each :role_name do |record, attr, value|
-        options[:message] ||= ActiveRecord::Errors.default_error_messages[:inclusion]
+        options[:message] ||= I18n.translate('activerecord.errors.messages.inclusion')
         role = ::Permissions.find_role_by_name(value)
         record.errors.add attr, options[:message] if role.nil?
       end

@@ -44,6 +44,12 @@ class ValidationTest < ActiveSupport::TestCase
       
     end
     
+    should "use add the default inclusion error message on role_name" do
+      @user.role_name = ""
+      @user.valid?
+      assert_equal I18n.translate('activerecord.errors.messages.inclusion'), @user.errors.on(:role_name)
+    end
+    
   end
 
 end
