@@ -44,6 +44,10 @@ class HasRoleOptionsTest < ActiveSupport::TestCase
     should "create new instances with that role" do
       assert_equal :admin, TrustFundKid.new.role.name
     end
+    
+    should "set that role if the initial role name is blank" do
+      assert_equal :admin, TrustFundKid.new(:role_name => "").role.name
+    end
   
     should "ignore the default if another role is given" do
       assert_equal :student, TrustFundKid.new(:role_name => "student").role.name
