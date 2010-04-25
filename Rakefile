@@ -24,10 +24,10 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gemspec|
     gemspec.name = "Aegis"
-    gemspec.summary = "Role-based permissions for your user models."
+    gemspec.summary = "Complete authorization solution for Rails"
     gemspec.email = "github@makandra.de"
     gemspec.homepage = "http://github.com/makandra/aegis"
-    gemspec.description = "Aegis is a role-based permission system, where all users are given a role. It is possible to define detailed and complex permissions for each role very easily."
+    gemspec.description = "Aegis is an authorization solution for Ruby on Rails that supports roles and a RESTish, resource-style declaration of permission rules."
     gemspec.authors = ["Henning Koch"]
   end
 rescue LoadError

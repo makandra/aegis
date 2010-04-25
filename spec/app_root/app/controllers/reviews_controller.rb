@@ -33,8 +33,4 @@ class ReviewsController < ApplicationController
     @parent_object ||= Property.find(params[:id])
   end
 
-  def current_user
-    User.new(:role_name => 'user')
-  end
-
 end

@@ -1,182 +1,98 @@
-= Aegis - role-based permissions for your user models
+= Aegis - A complete authorization solution for Rails
 
-Aegis allows you to manage fine-grained, complex permission for user accounts in a central place.
+Aegis is an authorization solution for Ruby on Rails that supports roles and a RESTish, resource-style declaration of
+permission rules. Getting started with Aegis is easy and requires very little integration. As your authorization
+requirements become more complex, Aegis will grow with you.
 
-== Installation
+== Full-blown Example
 
-Add the following to your <tt>Initializer.run</tt> block in your <tt>environment.rb</tt>:
-    config.gem 'aegis', :source => 'http://gemcutter.org'
-Then do a 
-    sudo rake gems:install
+=== Defining permissions
 
-Alternatively, use
-    sudo gem sources -a http://gemcutter.org
-    sudo gem install aegis
+Permissions are defined similiar to routes. You can describe the sections of your site
+using <tt>resources</tt>. Your permission resources might match those in your routes, but don't have to.
 
-== Example 
-
-First, let's define some roles:
+Access to resources or individual actions can be granted or denied to specific roles.
+You can also declare access rules for all roles, or only for reading or writing requests:
 
     # app/models/permissions.rb
     class Permissions < Aegis::Permissions
 
       role :guest
-      role :registered_user
-      role :moderator
-      role :administrator, :default_permission => :allow
-      
-      permission :edit_post do |user, post|
-        allow :registered_user do
-          post.creator == user      # a registered_user can only edit his own posts
-        end
-        allow :moderator
-      end
-      
-      permission :read_post do |post|
+      role :user
+      role :admin
+
+      resource :profile do
         allow :everyone
-        deny :guest do
-          post.private?             # guests may not read private posts
+        deny :guest
+      end
+
+      resources :news_posts do
+
+        reading do
+          allow :everyone
+        end
+
+        writing do
+          allow :admin
+        end
+
+        resources :comments, :except => [:destroy] do
+          allow :everyone
+          action :update do
+            allow :user do
+              object.author == user
+            end
+          end
+        end
+
+      end
+
+      namespace :admin do
+        resources :users do
+          allow :admin
         end
       end
 
     end
 
+=== In your user model
 
 Now we assign roles to users. For this, the users table needs to have a string
-column +role_name+.
+column +role_name+. In your model, all you do is this:
 
     # app/models/user.rb
-    class User
+    class User < ActiveRecord::Base
       has_role
     end
 
-
-These permissions may be used in views and controllers:
+You can now ask a user if she is allowed to access a given action:
     
     # app/views/posts/index.html.erb
     @posts.each do |post|
-      <% if current_user.may_read_post? post %>
-        <%= render post %>
-        <% if current_user.may_edit_post? post %>
-          <%= link_to 'Edit', edit_post_path(post) %>
-        <% end %>
+      <%= render post %>
+      <% if current_user.may_update_post? post %>
+        <%= link_to 'Edit', edit_post_path(post) %>
       <% end %>
     <% end %>
 
+=== In your controllers
+
+You can protect all actions in a controller through an Aegis resource with a single line:
 
     # app/controllers/posts_controller.rb
-    class PostsController
-      # ...
-
-      def update
-        @post = Post.find(params[:id])
-        current_user.may_edit_post! @post    # raises an Aegis::PermissionError for unauthorized access
-        # ...
-      end
-
+    class CommentsController
+      permissions :news_post_comments
     end
 
-== Details
+We understand that not all controllers are RESTful and that you can have custom actions and whatnot.
+Be assured that Aegis comes with great tools to deal with all of these cases.
 
-=== Roles
+== Detailled API
 
-To equip a (user) model with any permissions, you simply call *has_role* within
-the model:
-    class User < ActiveRecord::Base
-      has_role
-    end
-Aegis assumes that the corresponding database table has a string-valued column
-called +role_name+. You may override the name with the <tt>:name_accessor =>
-:my_role_column</tt> option.
+Working on it.
 
-You can define a default role for a model by saying
-    class User < ActiveRecord::Base
-      has_role :default => :admin
-    end
-All this will do, is initialize the +role_name+ with the given default when
-<tt>User.new</tt> is called.
 
-The roles and permissions themselves are defined in a class inheriting from
-<b>Aegis::Permissions</b>. To define roles you create a model <tt>permissions.rb</tt>
-and use the *role* method:
-    class Permissions < Aegis::Permissions
-      role 'role_name'
-    end
-
-By default, users belonging to this role are not permitted anything. You may
-override this with <tt>:default_permission => :allow</tt>, e.g.
-    role 'admin', :default_permission => :allow
-
-=== Permissions
-
-Permissions are specified with the *permission* method and *allow* and *deny*
-    permission :do_something do
-        allow :role_a, :role_b
-        deny :role_c
-    end
-
-Your user model just received two methods called <b>User#may_do_something?</b>
-and <b>User#may_do_something!</b>. The first one with the ? returns true for users with
-+role_a+ and +role_b+, and false for users with +role_c+. The second one with the ! raises an
-Aegis::PermissionError for +role_c+.
-
-=== Normalization
-
-Aegis will perform some normalization. For example, the permissions
-+edit_something+ and +update_something+ will be the same, each granting both 
-<tt>may_edit_something?</tt> and <tt>may_update_something?</tt>. The following normalizations
-are active:
-* edit = update
-* show = list = view = read
-* delete = remove = destroy
-
-=== Complex permissions (with parameters)
- 
-*allow* and *deny* can also take a block that may return +true+ or +false+
-indicating if this really applies. So
-    permission :pull_april_fools_prank do
-      allow :everyone do
-        Date.today.month == 4 and Date.today.day == 1
-      end
-    end
-will generate a <tt>may_pull_april_fools_prank?</tt> method that only returns true on
-April 1.
-
-This becomes more useful if you pass parameters to a <tt>may_...?</tt> method, which
-are passed through to the permission block (together with the user object). This
-way you can define more complex permissions like
-    permission :edit_post do |current_user, post|
-      allow :registered_user do
-        post.owner == current_user
-      end
-      allow :admin
-    end
-which will permit admins and post owners to edit posts.
-
-=== For your convenience
-
-As a convenience, if you create a permission ending in a plural 's', this
-automatically includes the singular form. That is, after
-    permission :read_posts do
-      allow :everyone
-    end
-<tt>.may_read_post? @post</tt> will return true, as well.
-
-If you want to grant +create_something+, +read_something+, +update_something+
-and +destroy_something+ permissions all at once, just use
-    permission :crud_something do
-      allow :admin
-    end
-
-If several permission blocks (or several allow and denies) apply to a certain
-role, the later one always wins. That is
-    permission :do_something do
-      deny :everyone
-      allow :admin
-    end
-will work as expected.
-
-=== Our stance on multiple roles per user
+== Our stance on multiple roles per user
 
 We believe that you should only distinguish roles that have different ways of resolving their permissions. A typical set of roles would be
 
@@ -184,12 +100,26 @@ We believe that you should only distinguish roles that have different ways of re
 * signed up user (has access to some things depending on its attributes and associations)
 * administrator (has access to everything)
 
-We don't do multiple, parametrized roles like "leader for project #2" and "author of post #7". 
+We don't do multiple, parametrized roles like "leader for project #2" and "author of post #7".
 That would be reinventing associations. Just use a single :user role and let your permission block
 query regular associations and attributes.
 
-=== Credits
+== Installation
+
+Add the following to your <tt>Initializer.run</tt> block in your <tt>environment.rb</tt>:
+    config.gem 'aegis', :source => 'http://gemcutter.org'
+Then do a
+    sudo rake gems:install
+
+Alternatively, use
+    sudo gem sources -a http://gemcutter.org
+    sudo gem install aegis
+
+
+== Credits
 
 Henning Koch, Tobias Kraze
 
-{link www.makandra.de}[http://www.makandra.de/]
+{gem-session.com}[http://gem-session.com/]
+
+{www.makandra.de}[http://www.makandra.de/]
