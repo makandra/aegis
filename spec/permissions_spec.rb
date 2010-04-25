@@ -189,7 +189,7 @@ describe Aegis::Permissions do
       @permissions.may?(@moderator, 'destroy_account_booking', "the booking").should be_true
       @permissions.may?(@moderator, 'index_account_bookings').should be_true
 
-      @permissions.find_action_by_path('update_account').should be_defined
+      @permissions.find_action_by_path('update_account').should be_abstract
 
     end
 
@@ -209,7 +209,7 @@ describe Aegis::Permissions do
       @permissions.may?(@moderator, 'destroy_admin_booking', "the booking").should be_true
       @permissions.may?(@moderator, 'index_admin_bookings').should be_true
 
-      @permissions.find_action_by_path('update_admin').should_not be_defined
+      @permissions.find_action_by_path('update_admin').should_not be_abstract
 
     end
 
@@ -345,22 +345,22 @@ describe Aegis::Permissions do
       @permissions.class_eval do
         resources :posts, :only => [:show, :update]
       end
-      @permissions.find_action_by_path('update_post').should be_defined
-      @permissions.find_action_by_path('show_post').should be_defined
-      @permissions.find_action_by_path('create_post').should_not be_defined
-      @permissions.find_action_by_path('destroy_post').should_not be_defined
-      @permissions.find_action_by_path('index_posts').should_not be_defined
+      @permissions.find_action_by_path('update_post').should be_abstract
+      @permissions.find_action_by_path('show_post').should be_abstract
+      @permissions.find_action_by_path('create_post').should_not be_abstract
+      @permissions.find_action_by_path('destroy_post').should_not be_abstract
+      @permissions.find_action_by_path('index_posts').should_not be_abstract
     end
 
     it "should allow resources with all actions except a selected few" do
       @permissions.class_eval do
         resources :posts, :except => [:show, :update]
       end
-      @permissions.find_action_by_path('update_post').should_not be_defined
-      @permissions.find_action_by_path('show_post').should_not be_defined
-      @permissions.find_action_by_path('create_post').should be_defined
-      @permissions.find_action_by_path('destroy_post').should be_defined
-      @permissions.find_action_by_path('index_posts').should be_defined
+      @permissions.find_action_by_path('update_post').should_not be_abstract
+      @permissions.find_action_by_path('show_post').should_not be_abstract
+      @permissions.find_action_by_path('create_post').should be_abstract
+      @permissions.find_action_by_path('destroy_post').should be_abstract
+      @permissions.find_action_by_path('index_posts').should be_abstract
     end
 
   end
@@ -373,6 +373,42 @@ describe Aegis::Permissions do
 
     it "should raise an error if permission is denied" do
       lambda { @permissions.may!(@user, :delete_everything) }.should raise_error(Aegis::AccessDenied)
+    end
+
+  end
+
+  describe 'handle_undefined_action' do
+
+    it "should use the default permission if the strategy is :default_permission" do
+      @permissions.class_eval do
+        missing_action_means :default_permission
+      end
+      @user.may_undefined_action?.should be_false
+      @admin.may_undefined_action?.should be_true
+    end
+
+    it "should grant everyone access if the strategy is :allow" do
+      @permissions.class_eval do
+        missing_action_means :allow
+      end
+      @user.may_undefined_action?.should be_true
+      @admin.may_undefined_action?.should be_true
+    end
+
+    it "should deny everyone access if the strategy is :deny" do
+      @permissions.class_eval do
+        missing_action_means :deny
+      end
+      @user.may_undefined_action?.should be_false
+      @admin.may_undefined_action?.should be_false
+    end
+
+    it "should raise an error if the strategy is :error" do
+      @permissions.class_eval do
+        missing_action_means :error
+      end
+      lambda { @user.may_undefined_action? }.should raise_error
+      lambda { @admin.may_undefined_action? }.should raise_error
     end
 
   end

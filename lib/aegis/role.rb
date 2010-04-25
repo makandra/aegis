@@ -3,9 +3,8 @@ module Aegis
 
     attr_reader :name, :default_permission
 
-    def initialize(name, permissions, options)
+    def initialize(name, options)
       @name = name
-      @permissions = permissions
       @default_permission = options[:default_permission] == :allow ? :allow : :deny
       freeze
     end

@@ -2,6 +2,19 @@ module Aegis
   class Permissions
     class << self
 
+      UNDEFINED_ACTION_STRATEGIES = [
+        :allow, :deny, :default_permission, :error
+      ]
+
+      def missing_action_means(strategy)
+        UNDEFINED_ACTION_STRATEGIES.include?(strategy) or raise ArgumentError, "missing_action_means must be one of #{UNDEFINED_ACTION_STRATEGIES.inspect}"
+        @undefined_action_strategy = strategy
+      end
+
+      def permission(*args)
+        raise "The Aegis API has changed. Please check http://github.com/makandra/aegis for details."
+      end
+
       def action(*args, &block)
         prepare
         @parser.action(*args, &block)
@@ -34,7 +47,7 @@ module Aegis
         role_name = role_name.to_s
         role_name != 'everyone' or raise "Cannot define a role named: #{role_name}"
         @roles_by_name ||= {}
-        @roles_by_name[role_name] = Aegis::Role.new(role_name, self, options)
+        @roles_by_name[role_name] = Aegis::Role.new(role_name, options)
       end
 
       def roles
@@ -48,18 +61,16 @@ module Aegis
       def guess_action(resource, action_name, map)
         action = nil
         guess_action_paths(resource, action_name, map).detect do |path|
-          action = find_action_by_path(path)
+          action = find_action_by_path(path, false)
         end
-        action
+        handle_undefined_action(action)
       end
 
-      def guess_action!(resource, action_name, map)
-        guess_action(resource, action_name, map) or raise "Undefined permission: #{resource}##{action_name}"
-      end
-
-      def find_action_by_path(path)
+      def find_action_by_path(path, handle_undefined = true)
         compile
-        @actions_by_path[path.to_s] || Aegis::Action.undefined
+        action = @actions_by_path[path.to_s]
+        action = handle_undefined_action(action) if handle_undefined
+        action
       end
 
       def app_permissions(option)
@@ -77,6 +88,15 @@ module Aegis
 
       private
 
+      def handle_undefined_action(possibly_undefined_action)
+        possibly_undefined_action ||= case @undefined_action_strategy
+          when :default_permission then Aegis::Action.undefined
+          when :allow then Aegis::Action.allow_to_all
+          when :deny then Aegis::Action.deny_to_all
+          when :error then raise "Undefined Aegis action: #{action}"
+        end
+      end
+
       def guess_action_paths(resource, action_name, map)
         if mapped = map[action_name]
           [ mapped.singularize,
@@ -90,6 +110,7 @@ module Aegis
       def prepare
         unless @parser
           @parser = Aegis::Parser.new
+          @undefined_action_strategy ||= :default_permission
         end
       end
 

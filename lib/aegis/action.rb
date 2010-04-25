@@ -60,7 +60,19 @@ module Aegis
       new(nil, :takes_object => false, :writing => true)
     end
 
-    def defined?
+    def self.allow_to_all
+      action = undefined
+      action.sieves << Aegis::Sieve.allow_to_all
+      action
+    end
+
+    def self.deny_to_all
+      action = undefined
+      action.sieves << Aegis::Sieve.deny_to_all
+      action
+    end
+
+    def abstract?
       name.present?
     end
 

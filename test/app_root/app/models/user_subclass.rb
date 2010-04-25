@@ -1,2 +1,0 @@
-class UserSubclass < User
-end

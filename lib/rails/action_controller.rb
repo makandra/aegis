@@ -16,7 +16,7 @@ module Aegis
         permissions = lambda { Aegis::Permissions.app_permissions(options[:permissions]) }
 
         define_method :check_permissions do
-          action = permissions.call.guess_action!(
+          action = permissions.call.guess_action(
             resource,
             action_name.to_s,
             actions_map
