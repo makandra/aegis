@@ -52,22 +52,37 @@ module Aegis
       actions.select(&:writing)
     end
 
-    def action_path(action)
+    def action_paths(action, aliases)
       if root?
-        action.name
+        action_names_with_aliases(action.name, aliases)
       else
-        [ action.name,
-          parent && parent.path(false),
-          action.pluralize_resource ? name.pluralize : name.singularize ].select(&:present?).join("_")
+        action_names_with_aliases(action.name, aliases).collect do |action_name|
+          build_path(
+            action_name,
+            parent && parent.path(false),
+            action.pluralize_resource ? name.pluralize : name.singularize
+          )
+        end
       end
     end
 
-    def index_actions_by_path(index = {})
+    def action_names_with_aliases(native_name, aliases)
+      names = [native_name]
+      aliases.each do |key, value|
+        names << key if value == native_name
+      end
+      names
+    end
+
+    def index_actions_by_path(aliases)
+      index = {}
       actions.each do |action|
-        index[action_path(action)] = action
+        action_paths(action, aliases).each do |path|
+          index[path] = action
+        end
       end
       children.each do |child|
-        child.index_actions_by_path(index)
+        index.merge! child.index_actions_by_path(aliases)
       end
       index
     end
@@ -85,10 +100,14 @@ module Aegis
     def path(pluralize = true)
       parent_path = parent && parent.path(false)
       pluralized_name = name ? (pluralize ? name.pluralize : name.singularize) : nil
-      [parent_path, pluralized_name].select(&:present?).join("_")
+      build_path(parent_path, pluralized_name)
     end
 
     private
+
+    def build_path(*args)
+      args.select(&:present?).join("_")
+    end
 
     def filter_actions(actions, options)
       if options[:only]

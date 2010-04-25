@@ -189,7 +189,7 @@ describe Aegis::Permissions do
       @permissions.may?(@moderator, 'destroy_account_booking', "the booking").should be_true
       @permissions.may?(@moderator, 'index_account_bookings').should be_true
 
-      @permissions.find_action_by_path('update_account').should be_abstract
+      @permissions.find_action_by_path('update_account').should_not be_abstract
 
     end
 
@@ -209,7 +209,7 @@ describe Aegis::Permissions do
       @permissions.may?(@moderator, 'destroy_admin_booking', "the booking").should be_true
       @permissions.may?(@moderator, 'index_admin_bookings').should be_true
 
-      @permissions.find_action_by_path('update_admin').should_not be_abstract
+      @permissions.find_action_by_path('update_admin').should be_abstract
 
     end
 
@@ -345,17 +345,6 @@ describe Aegis::Permissions do
       @permissions.class_eval do
         resources :posts, :only => [:show, :update]
       end
-      @permissions.find_action_by_path('update_post').should be_abstract
-      @permissions.find_action_by_path('show_post').should be_abstract
-      @permissions.find_action_by_path('create_post').should_not be_abstract
-      @permissions.find_action_by_path('destroy_post').should_not be_abstract
-      @permissions.find_action_by_path('index_posts').should_not be_abstract
-    end
-
-    it "should allow resources with all actions except a selected few" do
-      @permissions.class_eval do
-        resources :posts, :except => [:show, :update]
-      end
       @permissions.find_action_by_path('update_post').should_not be_abstract
       @permissions.find_action_by_path('show_post').should_not be_abstract
       @permissions.find_action_by_path('create_post').should be_abstract
@@ -363,6 +352,38 @@ describe Aegis::Permissions do
       @permissions.find_action_by_path('index_posts').should be_abstract
     end
 
+    it "should allow resources with all actions except a selected few" do
+      @permissions.class_eval do
+        resources :posts, :except => [:show, :update]
+      end
+      @permissions.find_action_by_path('update_post').should be_abstract
+      @permissions.find_action_by_path('show_post').should be_abstract
+      @permissions.find_action_by_path('create_post').should_not be_abstract
+      @permissions.find_action_by_path('destroy_post').should_not be_abstract
+      @permissions.find_action_by_path('index_posts').should_not be_abstract
+    end
+
+
+    it "should alias action names for all actions and resources, aliasing #new and #edit by default" do
+
+      @permissions.class_eval do
+
+        alias_action :delete => :destroy
+
+        resources :properties do
+          resources :comments
+        end
+      end
+
+      @permissions.find_action_by_path('delete_property').should_not be_abstract
+      @permissions.find_action_by_path('new_property').should_not be_abstract
+      @permissions.find_action_by_path('edit_property').should_not be_abstract
+
+      @permissions.find_action_by_path('delete_property_comment').should_not be_abstract
+      @permissions.find_action_by_path('new_property_comment').should_not be_abstract
+      @permissions.find_action_by_path('edit_property_comment').should_not be_abstract
+
+    end
   end
 
   describe 'may!' do
@@ -409,6 +430,35 @@ describe Aegis::Permissions do
       end
       lambda { @user.may_undefined_action? }.should raise_error
       lambda { @admin.may_undefined_action? }.should raise_error
+    end
+
+  end
+
+  describe 'guess_action' do
+
+    it "should guess an action based on the given resource and action name, trying both singular and plural" do
+
+      @permissions.class_eval do
+        resources :posts
+      end
+
+      @permissions.guess_action(:posts, :index).should_not be_abstract
+      @permissions.guess_action(:posts, :update).should_not be_abstract
+      @permissions.guess_action(:posts, :unknown_action).should be_abstract
+
+    end
+
+    it "should consult the actions map first and use the the default behaviour for unmapped actions" do
+
+      @permissions.class_eval do
+        resources :posts, :only => [:update] do
+          action :view_all, :collection => true
+        end
+      end
+
+      @permissions.guess_action(:posts, 'index', 'index' => 'view_all_posts').should_not be_abstract
+      @permissions.guess_action(:posts, 'update', 'index' => 'view_all_posts').should_not be_abstract
+
     end
 
   end

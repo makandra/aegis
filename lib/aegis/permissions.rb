@@ -11,6 +11,13 @@ module Aegis
         @undefined_action_strategy = strategy
       end
 
+      def alias_action(aliases)
+        prepare
+        aliases.each do |key, value|
+          @action_aliases[key.to_s] = value.to_s
+        end
+      end
+
       def permission(*args)
         raise "The Aegis API has changed. Please check http://github.com/makandra/aegis for details."
       end
@@ -58,9 +65,11 @@ module Aegis
         @roles_by_name[name.to_s]
       end
 
-      def guess_action(resource, action_name, map)
+      def guess_action(resource_name, action_name, map = {})
+        compile
         action = nil
-        guess_action_paths(resource, action_name, map).detect do |path|
+        action_name = action_name.to_s
+        guess_action_paths(resource_name, action_name, map).detect do |path|
           action = find_action_by_path(path, false)
         end
         handle_undefined_action(action)
@@ -97,13 +106,12 @@ module Aegis
         end
       end
 
-      def guess_action_paths(resource, action_name, map)
+      def guess_action_paths(resource_name, action_name, map)
         if mapped = map[action_name]
-          [ mapped.singularize,
-            mapped.pluralize ]
+          [ mapped.to_s ]
         else
-          [ "#{action_name}_#{resource.singularize}",
-            "#{action_name}_#{resource.pluralize}" ]
+          [ "#{action_name}_#{resource_name.to_s.singularize}",
+            "#{action_name}_#{resource_name.to_s.pluralize}" ]
         end
       end
 
@@ -111,6 +119,10 @@ module Aegis
         unless @parser
           @parser = Aegis::Parser.new
           @undefined_action_strategy ||= :default_permission
+          @action_aliases = {
+            'new' => 'create',
+            'edit' => 'update'
+          }
         end
       end
 
@@ -119,8 +131,12 @@ module Aegis
           prepare
           @root_resource = Aegis::Resource.new(nil, nil, :root, {})
           Aegis::Compiler.compile(@root_resource, @parser.atoms)
-          @actions_by_path = @root_resource.index_actions_by_path
+          index_actions
         end
+      end
+
+      def index_actions
+        @actions_by_path = @root_resource.index_actions_by_path(@action_aliases)        
       end
 
     end

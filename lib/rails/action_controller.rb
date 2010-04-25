@@ -3,16 +3,16 @@ module Aegis
 
     def permissions(resource, options = {})
 
-      before_filter :check_permissions
+      before_filter :check_permissions, options.slice(:except, :only)
 
       instance_eval do
 
         private
 
-        actions_map = (options[:actions] || {}).stringify_keys
+        actions_map = (options[:map] || {}).stringify_keys
         object_method = options[:object] || :object
         parent_object_method = options[:parent_object] || :parent_object
-        current_user_method = options[:current_user] || :current_user
+        user_method = options[:user] || :current_user
         permissions = lambda { Aegis::Permissions.app_permissions(options[:permissions]) }
 
         define_method :check_permissions do
@@ -22,9 +22,9 @@ module Aegis
             actions_map
           )
           args = []
-          args << send(current_user_method)
-          args << send(parent_object_method) if action.takes_parent_object?
-          args << send(object_method) if action.takes_object?
+          args << send(user_method)
+          args << send(parent_object_method) if action.takes_parent_object
+          args << send(object_method) if action.takes_object
           action.may!(*args)
         end
 

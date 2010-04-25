@@ -73,7 +73,7 @@ module Aegis
     end
 
     def abstract?
-      name.present?
+      name.blank?
     end
 
     def inspect
