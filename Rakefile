@@ -1,18 +1,17 @@
 require 'rake'
-require 'rake/testtask'
 require 'rake/rdoctask'
+require 'spec/rake/spectask'
 
-desc 'Default: run unit tests.'
-task :default => :test
+desc 'Default: Run Aegis specs'
+task :default => :spec
 
-desc 'Test the aegis gem.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
+desc "Run Aegis specs"
+Spec::Rake::SpecTask.new() do |t|
+  t.spec_opts = ['--options', "\"spec/spec.opts\""]
+  t.spec_files = FileList['spec/**/*_spec.rb']
 end
 
-desc 'Generate documentation for the aegis plugin.'
+desc 'Generate documentation for the Aegis gem'
 Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = 'Aegis'
@@ -24,7 +23,7 @@ end
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gemspec|
-    gemspec.name = "aegis"
+    gemspec.name = "Aegis"
     gemspec.summary = "Role-based permissions for your user models."
     gemspec.email = "github@makandra.de"
     gemspec.homepage = "http://github.com/makandra/aegis"
