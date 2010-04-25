@@ -4,7 +4,7 @@ module Aegis
     attr_reader :atoms
 
     def self.parse(&block)
-      Parser.new.parse(&block).atoms      
+      Aegis::Parser.new.parse(&block)
     end
 
     def initialize
@@ -16,34 +16,43 @@ module Aegis
       atoms
     end
 
-    def action(name, options, &block)
+    def action(name, options = {}, &block)
       @atoms.push({
         :type => :action,
         :name => name.to_s,
         :options => options,
-        :children => Parser.parse(&block)
+        :children => Aegis::Parser.parse(&block)
       })
     end
 
-    def resource(name, options, &block)
+    def namespace(name, options = {}, &block)
+      @atoms.push({
+        :type => :namespace,
+        :name => name.to_s,
+        :options => options,
+        :children => Aegis::Parser.parse(&block)
+      })
+    end
+
+    def resource(name, options = {}, &block)
       @atoms.push({
         :type => :resource,
         :name => name.to_s,
         :options => options,
-        :children => Parser.parse(&block)
+        :children => Aegis::Parser.parse(&block)
       })
     end
 
-    def resources(name, options, &block)
+    def resources(name, options = {}, &block)
       @atoms.push({
         :type => :resources,
         :name => name.to_s,
         :options => options,
-        :children => Parser.parse(&block)
+        :children => Aegis::Parser.parse(&block)
       })
     end
 
-    def allow(role_name, &block)
+    def allow(role_name = nil, &block)
       @atoms.push({
         :type => :allow,
         :role_name => role_name.to_s,
@@ -51,7 +60,7 @@ module Aegis
       })
     end
 
-    def deny(role_name, &block)
+    def deny(role_name = nil, &block)
       @atoms.push({
         :type => :deny,
         :role_name => role_name.to_s,
@@ -63,7 +72,7 @@ module Aegis
       block or raise "missing block"
       @atoms.push({
         :type => :reading,
-        :children => Parser.parse(&block)
+        :children => Aegis::Parser.parse(&block)
       })
     end
 
@@ -71,7 +80,7 @@ module Aegis
       block or raise "missing block"
       @atoms.push({
         :type => :writing,
-        :children => Parser.parse(&block)
+        :children => Aegis::Parser.parse(&block)
       })
     end
 

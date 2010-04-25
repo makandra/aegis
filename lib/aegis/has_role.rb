@@ -12,7 +12,7 @@ module Aegis
       get_role_name = (options[:reader] || "role_name").to_sym
       set_role_name = (options[:writer] || "role_name=").to_sym
 
-      permissions = lambda { Aegis::Permissions.definition_class(options[:permissions]) }
+      permissions = lambda { Aegis::Permissions.app_permissions(options[:permissions]) }
 
       may_pattern = /^may_(.+?)([\!\?])$/
 
@@ -45,11 +45,13 @@ module Aegis
           end
         end
 
-        send :define_method, :set_default_aegis_role_name do
+        send :define_method, :set_default_role_name do
           if new_record? && send(get_role_name).blank?
             send(set_role_name, options[:default])
           end
         end
+
+        after_initialize :set_default_role_name
 
       end
 

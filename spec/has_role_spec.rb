@@ -58,6 +58,14 @@ describe Aegis::HasRole do
       user.should_receive(:role_handle).and_return('admin')
       user.role
     end
+
+    it "should take a default role" do
+      permissions_class = @permissions_class
+      @user_class.class_eval { has_role :default => "admin", :permissions => permissions_class }
+      user = @user_class.new
+      user.role.name.should == 'admin'
+    end
+
   end
 
   describe 'role=' do

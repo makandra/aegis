@@ -1,29 +1,33 @@
 module Aegis
   class Permissions
     class << self
-      attr_accessor :root_resource
 
       def action(*args, &block)
         prepare
-        parser.action(*args, &block)
+        @parser.action(*args, &block)
       end
 
-      def resource(name, options, &block)
+      def resource(*args, &block)
         prepare
-        parser.resource(*args, &block)
+        @parser.resource(*args, &block)
       end
 
-      def resources(name, options, &block)
+      def namespace(*args, &block)
         prepare
-        parser.resources(*args, &block)
+        @parser.namespace(*args, &block)
+      end
+
+      def resources(*args, &block)
+        prepare
+        @parser.resources(*args, &block)
       end
 
       def may?(user, path, *args)
-        find_action_by_path!(path).may?(user, *args)
+        find_action_by_path(path).may?(user, *args)
       end
 
       def may!(user, path, *args)
-        find_action_by_path!(path).may!(user, *args)
+        find_action_by_path(path).may!(user, *args)
       end
 
       def role(role_name, options = {})
@@ -41,33 +45,24 @@ module Aegis
         @roles_by_name[name.to_s]
       end
 
-      def find_role_by_name!(name)
-        find_role_by_name(name) or raise "Undefined role: #{name}"
+      def guess_action(resource, action_name, map)
+        action = nil
+        guess_action_paths(resource, action_name, map).detect do |path|
+          action = find_action_by_path(path)
+        end
+        action
       end
 
-      def guess_action(resource, action_name)
-        paths = [
-          "#{action_name}_#{resource}",
-          "#{action_name}_#{resource.singularize}",
-          "#{action_name}_#{resource.pluralize}"
-        ]
-      end
-
-      def guess_action!(resource, action_name)
-        guess_action(resource, action_name) or raise "Undefined permission: #{resource}##{action_name}"
+      def guess_action!(resource, action_name, map)
+        guess_action(resource, action_name, map) or raise "Undefined permission: #{resource}##{action_name}"
       end
 
       def find_action_by_path(path)
         compile
-        @actions_by_path[path.to_s]
+        @actions_by_path[path.to_s] || Aegis::Action.undefined
       end
 
-      def find_action_by_path!(path)
-        compile
-        find_action_by_path(path) or raise "Undefined permission: #{path}"
-      end
-
-      def definition_class(option)
+      def app_permissions(option)
         if option.is_a?(Class)
           option
         else
@@ -75,19 +70,35 @@ module Aegis
         end
       end
 
+      def inspect
+        compile
+        "Permissions(#{@root_resource.inspect})"
+      end
+
       private
 
+      def guess_action_paths(resource, action_name, map)
+        if mapped = map[action_name]
+          [ mapped.singularize,
+            mapped.pluralize ]
+        else
+          [ "#{action_name}_#{resource.singularize}",
+            "#{action_name}_#{resource.pluralize}" ]
+        end
+      end
+
       def prepare
-        unless self.parser
-          self.parser = Aegis::Parser.new
+        unless @parser
+          @parser = Aegis::Parser.new
         end
       end
 
       def compile
-        unless self.root_resource
-          root_resource = Resource.new(nil, nil, :root, {})
-          Compiler.compile(root_resource, parser.atoms)
-          @actions_by_path = root_resource.index_actions_by_path
+        unless @root_resource
+          prepare
+          @root_resource = Aegis::Resource.new(nil, nil, :root, {})
+          Aegis::Compiler.compile(@root_resource, @parser.atoms)
+          @actions_by_path = @root_resource.index_actions_by_path
         end
       end
 

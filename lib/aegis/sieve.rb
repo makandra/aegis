@@ -1,8 +1,9 @@
 module Aegis
   class Sieve
 
-    def initialize(role_name, effect, &block)
-      @role_name = (role_name || 'everyone').to_s
+    def initialize(role_name, effect, block)
+      role_name = 'everyone' if role_name.blank?
+      @role_name = role_name.to_s
       @effect = effect
       @block = block
     end
@@ -19,6 +20,10 @@ module Aegis
       else
         nil
       end
+    end
+
+    def inspect
+      "Sieve(#{{:role_name => @role_name, :effect => @effect ? :allow : :deny, :block => @block.present?}.inspect})"
     end
 
   end

@@ -2,6 +2,7 @@ module Aegis
   class Compiler
 
     ATOM_GROUPS = {
+      :namespace  => :structure,
       :resource   => :structure,
       :resources  => :structure,
       :action     => :structure,
@@ -17,10 +18,10 @@ module Aegis
 
     def compile(atoms)
       grouped_atoms = group_atoms(atoms)
-      for atom in grouped_atoms[:structure]
+      for atom in grouped_atoms[:structure] || []
         compile_structure(atom)
       end
-      for atom in grouped_atoms[:sieve]
+      for atom in grouped_atoms[:sieve] || []
         compile_sieve(atom)
       end
     end
@@ -34,11 +35,9 @@ module Aegis
     def compile_structure(atom)
       case atom[:type]
       when :action
-        resource.create_or_update_action(
-          atom[:name],
-          create_action_options(atom[:options]),
-          update_action_options(atom[:options])
-        )
+        compile_action(atom)
+      when :namespace
+        compile_namespace(atom)
       when :resource
         compile_child_resource(atom, :singleton)
       when :resources
@@ -48,23 +47,39 @@ module Aegis
       end
     end
 
-    def compile_sieve(atom, affected_actions = resource.actions)
+    def compile_namespace(atom)
+      atom[:options].merge!(:only => [])
+      compile_child_resource(atom, :singleton)
+    end
+
+    def compile_action(atom)
+      action = @resource.create_or_update_action(
+        atom[:name],
+        create_action_options(atom[:options]),
+        update_action_options(atom[:options])
+      )
+      for sieve_atom in atom[:children]
+        compile_sieve(sieve_atom, [action])
+      end
+    end
+
+    def compile_sieve(atom, affected_actions = @resource.actions)
       case atom[:type]
       when :allow
         for action in affected_actions
-          action.sieves << Sieve.new(atom[:role_name], true, atom[:block])
+          action.sieves << Aegis::Sieve.new(atom[:role_name], true, atom[:block])
         end
       when :deny
         for action in affected_actions
-          action.sieves << Sieve.new(atom[:role_name], false, atom[:block])
+          action.sieves << Aegis::Sieve.new(atom[:role_name], false, atom[:block])
         end
       when :reading
         for child in atom[:children]
-          compile_sieve(child, resource.reading_actions)
+          compile_sieve(child, @resource.reading_actions)
         end
       when :writing
         for child in atom[:children]
-          compile_sieve(child, resource.writing_actions)
+          compile_sieve(child, @resource.writing_actions)
         end
       else
         "Unexpected atom type: #{atom[:type]}"
@@ -72,14 +87,14 @@ module Aegis
     end
 
     def compile_child_resource(atom, type)
-      child = Resource.new(resource, atom[:name], type, atom[:options])
-      resource.children << child
-      Compiler.compile(child, atom[:children])
+      child = Aegis::Resource.new(@resource, atom[:name], type, atom[:options])
+      @resource.children << child
+      Aegis::Compiler.compile(child, atom[:children])
     end
 
     def create_action_options(options)
-      { :takes_object => resource.new_action_takes_object?(options),
-        :takes_parent_object => resource.new_action_takes_parent_object?(options)
+      { :takes_object => @resource.new_action_takes_object?(options),
+        :takes_parent_object => @resource.new_action_takes_parent_object?(options)
       }.merge(update_action_options(options))
     end
 
@@ -93,14 +108,6 @@ module Aegis
         ATOM_GROUPS[atom[:type]]
       end
     end
-
-#    def stable_sort_by(collection, &block)
-#      n = 0
-#      collection.sort_by do |item|
-#        n += 1
-#        [block.call(item), n]
-#      end
-#    end
 
   end
 end

@@ -13,12 +13,14 @@ module Aegis
         object_method = options[:object] || :object
         parent_object_method = options[:parent_object] || :parent_object
         current_user_method = options[:current_user] || :current_user
-        permissions = lambda { Aegis::Permissions.definition_class(options[:permissions]) }
+        permissions = lambda { Aegis::Permissions.app_permissions(options[:permissions]) }
 
         define_method :check_permissions do
-          action_name = action_name.to_s
-          action_name = actions_map[action_name] || action_name
-          action = permissions.call.guess_action!(resource, action_name)
+          action = permissions.call.guess_action!(
+            resource,
+            action_name.to_s,
+            actions_map
+          )
           args = []
           args << send(current_user_method)
           args << send(parent_object_method) if action.takes_parent_object?
