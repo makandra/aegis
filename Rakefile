@@ -23,12 +23,12 @@ end
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gemspec|
-    gemspec.name = "Aegis"
+    gemspec.name = "aegis"
     gemspec.summary = "Complete authorization solution for Rails"
-    gemspec.email = "github@makandra.de"
+    gemspec.email = "henning.koch@makandra.de"
     gemspec.homepage = "http://github.com/makandra/aegis"
     gemspec.description = "Aegis is an authorization solution for Ruby on Rails that supports roles and a RESTish, resource-style declaration of permission rules."
-    gemspec.authors = ["Henning Koch"]
+    gemspec.authors = ["Henning Koch", "Tobias Kraze"]
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"

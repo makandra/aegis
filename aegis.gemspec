@@ -5,13 +5,13 @@
 
 Gem::Specification.new do |s|
   s.name = %q{aegis}
-  s.version = "1.1.6"
+  s.version = "2.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Henning Koch"]
-  s.date = %q{2009-11-11}
-  s.description = %q{Aegis is a role-based permission system, where all users are given a role. It is possible to define detailed and complex permissions for each role very easily.}
-  s.email = %q{github@makandra.de}
+  s.authors = ["Henning Koch", "Tobias Kraze"]
+  s.date = %q{2010-05-02}
+  s.description = %q{Aegis is an authorization solution for Ruby on Rails that supports roles and a RESTish, resource-style declaration of permission rules.}
+  s.email = %q{henning.koch@makandra.de}
   s.extra_rdoc_files = [
     "README.rdoc"
   ]
@@ -23,76 +23,75 @@ Gem::Specification.new do |s|
      "VERSION",
      "aegis.gemspec",
      "lib/aegis.rb",
-     "lib/aegis/constants.rb",
+     "lib/aegis/access_denied.rb",
+     "lib/aegis/action.rb",
+     "lib/aegis/compiler.rb",
      "lib/aegis/has_role.rb",
-     "lib/aegis/normalization.rb",
-     "lib/aegis/permission_error.rb",
-     "lib/aegis/permission_evaluator.rb",
+     "lib/aegis/parser.rb",
      "lib/aegis/permissions.rb",
+     "lib/aegis/resource.rb",
      "lib/aegis/role.rb",
+     "lib/aegis/sieve.rb",
+     "lib/rails/action_controller.rb",
      "lib/rails/active_record.rb",
-     "test/app_root/app/controllers/application_controller.rb",
-     "test/app_root/app/models/old_soldier.rb",
-     "test/app_root/app/models/permissions.rb",
-     "test/app_root/app/models/soldier.rb",
-     "test/app_root/app/models/trust_fund_kid.rb",
-     "test/app_root/app/models/user.rb",
-     "test/app_root/app/models/user_subclass.rb",
-     "test/app_root/app/models/veteran_soldier.rb",
-     "test/app_root/config/boot.rb",
-     "test/app_root/config/database.yml",
-     "test/app_root/config/environment.rb",
-     "test/app_root/config/environments/in_memory.rb",
-     "test/app_root/config/environments/mysql.rb",
-     "test/app_root/config/environments/postgresql.rb",
-     "test/app_root/config/environments/sqlite.rb",
-     "test/app_root/config/environments/sqlite3.rb",
-     "test/app_root/config/routes.rb",
-     "test/app_root/db/migrate/20090408115228_create_users.rb",
-     "test/app_root/db/migrate/20090429075648_create_soldiers.rb",
-     "test/app_root/db/migrate/20091110075648_create_veteran_soldiers.rb",
-     "test/app_root/db/migrate/20091110075649_create_trust_fund_kids.rb",
-     "test/app_root/lib/console_with_fixtures.rb",
-     "test/app_root/log/.gitignore",
-     "test/app_root/script/console",
-     "test/has_role_options_test.rb",
-     "test/has_role_test.rb",
-     "test/permissions_test.rb",
-     "test/test_helper.rb",
-     "test/validation_test.rb"
+     "spec/action_controller_spec.rb",
+     "spec/app_root/app/controllers/application_controller.rb",
+     "spec/app_root/app/controllers/reviews_controller.rb",
+     "spec/app_root/app/models/permissions.rb",
+     "spec/app_root/app/models/property.rb",
+     "spec/app_root/app/models/review.rb",
+     "spec/app_root/app/models/user.rb",
+     "spec/app_root/config/boot.rb",
+     "spec/app_root/config/database.yml",
+     "spec/app_root/config/environment.rb",
+     "spec/app_root/config/environments/in_memory.rb",
+     "spec/app_root/config/environments/mysql.rb",
+     "spec/app_root/config/environments/postgresql.rb",
+     "spec/app_root/config/environments/sqlite.rb",
+     "spec/app_root/config/environments/sqlite3.rb",
+     "spec/app_root/config/routes.rb",
+     "spec/app_root/db/migrate/001_create_users.rb",
+     "spec/app_root/db/migrate/002_create_properties.rb",
+     "spec/app_root/db/migrate/003_create_reviews.rb",
+     "spec/app_root/lib/console_with_fixtures.rb",
+     "spec/app_root/log/.gitignore",
+     "spec/app_root/script/console",
+     "spec/controllers/reviews_controller_spec.rb",
+     "spec/has_role_spec.rb",
+     "spec/permissions_spec.rb",
+     "spec/rcov.opts",
+     "spec/spec.opts",
+     "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/makandra/aegis}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.5}
-  s.summary = %q{Role-based permissions for your user models.}
+  s.summary = %q{Complete authorization solution for Rails}
   s.test_files = [
-    "test/app_root/app/models/trust_fund_kid.rb",
-     "test/app_root/app/models/veteran_soldier.rb",
-     "test/app_root/app/models/permissions.rb",
-     "test/app_root/app/models/soldier.rb",
-     "test/app_root/app/models/user_subclass.rb",
-     "test/app_root/app/models/old_soldier.rb",
-     "test/app_root/app/models/user.rb",
-     "test/app_root/app/controllers/application_controller.rb",
-     "test/app_root/config/environment.rb",
-     "test/app_root/config/environments/mysql.rb",
-     "test/app_root/config/environments/postgresql.rb",
-     "test/app_root/config/environments/sqlite3.rb",
-     "test/app_root/config/environments/in_memory.rb",
-     "test/app_root/config/environments/sqlite.rb",
-     "test/app_root/config/boot.rb",
-     "test/app_root/config/routes.rb",
-     "test/app_root/db/migrate/20090429075648_create_soldiers.rb",
-     "test/app_root/db/migrate/20090408115228_create_users.rb",
-     "test/app_root/db/migrate/20091110075649_create_trust_fund_kids.rb",
-     "test/app_root/db/migrate/20091110075648_create_veteran_soldiers.rb",
-     "test/app_root/lib/console_with_fixtures.rb",
-     "test/validation_test.rb",
-     "test/test_helper.rb",
-     "test/has_role_options_test.rb",
-     "test/has_role_test.rb",
-     "test/permissions_test.rb"
+    "spec/app_root/app/models/user.rb",
+     "spec/app_root/app/models/property.rb",
+     "spec/app_root/app/models/review.rb",
+     "spec/app_root/app/models/permissions.rb",
+     "spec/app_root/app/controllers/application_controller.rb",
+     "spec/app_root/app/controllers/reviews_controller.rb",
+     "spec/app_root/config/boot.rb",
+     "spec/app_root/config/environment.rb",
+     "spec/app_root/config/environments/in_memory.rb",
+     "spec/app_root/config/environments/mysql.rb",
+     "spec/app_root/config/environments/postgresql.rb",
+     "spec/app_root/config/environments/sqlite.rb",
+     "spec/app_root/config/environments/sqlite3.rb",
+     "spec/app_root/config/routes.rb",
+     "spec/app_root/db/migrate/001_create_users.rb",
+     "spec/app_root/db/migrate/002_create_properties.rb",
+     "spec/app_root/db/migrate/003_create_reviews.rb",
+     "spec/app_root/lib/console_with_fixtures.rb",
+     "spec/action_controller_spec.rb",
+     "spec/has_role_spec.rb",
+     "spec/permissions_spec.rb",
+     "spec/spec_helper.rb",
+     "spec/controllers/reviews_controller_spec.rb"
   ]
 
   if s.respond_to? :specification_version then
