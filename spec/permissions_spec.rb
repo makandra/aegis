@@ -42,18 +42,58 @@ describe Aegis::Permissions do
 
   end
 
-  describe 'may?' do
+  describe 'permission definition' do
 
-    it "should evaluate previously defined actions" do
+    it "should allow the definition of simple actions" do
 
       @permissions.class_eval do
         action :action_name do
-          allow
+          allow :user
         end
       end
 
       @permissions.may?(@user, 'action_name').should be_true
-      @permissions.may?(@admin, 'action_name').should be_true
+
+    end
+
+    it "should allow the definition of multiple actions at once" do
+
+      @permissions.class_eval do
+        action :action1, :action2 do
+          allow
+        end
+      end
+
+      @permissions.may?(@user, 'action1').should be_true
+      @permissions.may?(@user, 'action2').should be_true
+      @permissions.may?(@user, 'action3').should be_false
+
+    end
+
+    it "should match an allow/deny directive to everyone is no role is named" do
+      @permissions.class_eval do
+        action :allowed_to_all do
+          allow
+        end
+        action :denied_to_all do
+          deny
+        end
+      end
+
+      @permissions.may?(@user, 'allowed_to_all').should be_true
+      @permissions.may?(@admin, 'denied_to_all').should be_false
+    end
+
+    it "should allow to grant permissions to multiple roles at once" do
+
+      @permissions.class_eval do
+        action :action_name do
+          allow :user, :moderator
+        end
+      end
+
+      @permissions.may?(@user, 'action_name').should be_true
+      @permissions.may?(@moderator, 'action_name').should be_true
 
     end
 
@@ -99,14 +139,35 @@ describe Aegis::Permissions do
         end
       end
 
-      #p @permissions
-      #p @permissions.instance_variable_get("@actions_by_path").keys
-
       @permissions.may?(@moderator, 'update_post', "the post").should be_true
       @permissions.may?(@moderator, 'show_post', "the post").should be_true
       @permissions.may?(@moderator, 'create_post', "the post").should be_true
       @permissions.may?(@moderator, 'destroy_post', "the post").should be_true
       @permissions.may?(@moderator, 'index_posts').should be_true
+
+    end
+
+    it "should allow to configure generated resource actions" do
+
+      @permissions.class_eval do
+        resources :posts do
+          action :index do
+            allow :user
+          end
+          action :show do
+            allow :user
+          end
+        end
+      end
+
+      @permissions.may?(@user, 'update_post', "the post").should be_false
+      @permissions.may?(@user, 'show_post', "the post").should be_true
+      @permissions.may?(@user, 'create_post', "the post").should be_false
+      @permissions.may?(@user, 'destroy_post', "the post").should be_false
+      @permissions.may?(@user, 'index_posts').should be_true
+
+      @permissions.find_action_by_path('index_posts').takes_object.should be_false
+      @permissions.find_action_by_path('show_post').takes_object.should be_true
 
     end
 
@@ -398,38 +459,60 @@ describe Aegis::Permissions do
 
   end
 
-  describe 'handle_undefined_action' do
+  describe 'behavior when checking permissions without a user' do
+
+    it "should raise an error if the user is nil" do
+      lambda { @permissions.may?(nil, :some_action) }.should raise_error
+    end
+
+    it "should substitute the results from the blank user strategy" do
+      @permissions.class_eval do
+        missing_user_means { User.new(:role_name => 'user') }
+        action :create_post do
+          allow :moderator
+        end
+        action :show_post do
+          allow :user
+        end
+      end
+      @permissions.may?(nil, :create_post).should be_false
+      @permissions.may?(nil, :show_post).should be_true
+    end
+
+  end
+
+  describe 'behavior when a permission is not defined' do
 
     it "should use the default permission if the strategy is :default_permission" do
       @permissions.class_eval do
         missing_action_means :default_permission
       end
-      @user.may_undefined_action?.should be_false
-      @admin.may_undefined_action?.should be_true
+      @user.may_missing_action?.should be_false
+      @admin.may_missing_action?.should be_true
     end
 
     it "should grant everyone access if the strategy is :allow" do
       @permissions.class_eval do
         missing_action_means :allow
       end
-      @user.may_undefined_action?.should be_true
-      @admin.may_undefined_action?.should be_true
+      @user.may_missing_action?.should be_true
+      @admin.may_missing_action?.should be_true
     end
 
     it "should deny everyone access if the strategy is :deny" do
       @permissions.class_eval do
         missing_action_means :deny
       end
-      @user.may_undefined_action?.should be_false
-      @admin.may_undefined_action?.should be_false
+      @user.may_missing_action?.should be_false
+      @admin.may_missing_action?.should be_false
     end
 
     it "should raise an error if the strategy is :error" do
       @permissions.class_eval do
         missing_action_means :error
       end
-      lambda { @user.may_undefined_action? }.should raise_error
-      lambda { @admin.may_undefined_action? }.should raise_error
+      lambda { @user.may_missing_action? }.should raise_error
+      lambda { @admin.may_missing_action? }.should raise_error
     end
 
   end

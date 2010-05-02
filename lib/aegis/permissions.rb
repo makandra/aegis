@@ -2,13 +2,19 @@ module Aegis
   class Permissions
     class << self
 
-      UNDEFINED_ACTION_STRATEGIES = [
+      MISSING_ACTION_STRATEGIES = [
         :allow, :deny, :default_permission, :error
       ]
 
       def missing_action_means(strategy)
-        UNDEFINED_ACTION_STRATEGIES.include?(strategy) or raise ArgumentError, "missing_action_means must be one of #{UNDEFINED_ACTION_STRATEGIES.inspect}"
-        @undefined_action_strategy = strategy
+        prepare
+        MISSING_ACTION_STRATEGIES.include?(strategy) or raise ArgumentError, "missing_action_means must be one of #{MISSING_ACTION_STRATEGIES.inspect}"
+        @missing_action_strategy = strategy
+      end
+
+      def missing_user_means(&strategy)
+        prepare
+        @missing_user_strategy = strategy
       end
 
       def alias_action(aliases)
@@ -19,7 +25,7 @@ module Aegis
       end
 
       def permission(*args)
-        raise "The Aegis API has changed. Please check http://github.com/makandra/aegis for details."
+        raise "The Aegis API has changed. See http://wiki.github.com/makandra/aegis/upgrading-to-aegis-2 for migration instructions."
       end
 
       def action(*args, &block)
@@ -43,11 +49,11 @@ module Aegis
       end
 
       def may?(user, path, *args)
-        find_action_by_path(path).may?(user, *args)
+        query_action(:may?, user, path, *args)
       end
 
       def may!(user, path, *args)
-        find_action_by_path(path).may!(user, *args)
+        query_action(:may!, user, path, *args)
       end
 
       def role(role_name, options = {})
@@ -72,13 +78,13 @@ module Aegis
         guess_action_paths(resource_name, action_name, map).detect do |path|
           action = find_action_by_path(path, false)
         end
-        handle_undefined_action(action)
+        handle_missing_action(action)
       end
 
-      def find_action_by_path(path, handle_undefined = true)
+      def find_action_by_path(path, handle_missing = true)
         compile
         action = @actions_by_path[path.to_s]
-        action = handle_undefined_action(action) if handle_undefined
+        action = handle_missing_action(action) if handle_missing
         action
       end
 
@@ -97,8 +103,21 @@ module Aegis
 
       private
 
-      def handle_undefined_action(possibly_undefined_action)
-        possibly_undefined_action ||= case @undefined_action_strategy
+      def query_action(verb, user, path, *args)
+        user = handle_missing_user(user)
+        action = find_action_by_path(path)
+        action.send(verb, user, *args)
+      end
+
+      def handle_missing_user(possibly_missing_user)
+        possibly_missing_user ||= case @missing_user_strategy
+          when :error then raise "Cannot check permission without a user"
+          when Proc then @missing_user_strategy.call
+        end
+      end
+
+      def handle_missing_action(possibly_missing_action)
+        possibly_missing_action ||= case @missing_action_strategy
           when :default_permission then Aegis::Action.undefined
           when :allow then Aegis::Action.allow_to_all
           when :deny then Aegis::Action.deny_to_all
@@ -118,7 +137,8 @@ module Aegis
       def prepare
         unless @parser
           @parser = Aegis::Parser.new
-          @undefined_action_strategy ||= :default_permission
+          @missing_user_strategy = :error
+          @missing_action_strategy = :default_permission
           @action_aliases = {
             'new' => 'create',
             'edit' => 'update'

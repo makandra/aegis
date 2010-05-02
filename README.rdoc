@@ -4,105 +4,68 @@ Aegis is an authorization solution for Ruby on Rails that supports roles and a R
 permission rules. Getting started with Aegis is easy and requires very little integration. As your authorization
 requirements become more complex, Aegis will grow with you.
 
-== Full-blown Example
 
-=== Defining permissions
+== Getting started
 
-Permissions are defined similiar to routes. You can describe the sections of your site
-using <tt>resources</tt>. Your permission resources might match those in your routes, but don't have to.
+All your permissions live in a single class <tt>Permissions</tt>.
+Permissions are described using <tt>resources</tt>, similiar to your routes.
+Your permission resources can match those in your routes, but don't have to.
 
 Access to resources or individual actions can be granted or denied to specific roles.
-You can also declare access rules for all roles, or only for reading or writing requests:
 
-    # app/models/permissions.rb
-    class Permissions < Aegis::Permissions
+  class Permissions < Aegis::Permissions
 
-      role :guest
-      role :user
-      role :admin
+    role :user
+    role :admin
 
-      resource :profile do
-        allow :everyone
-        deny :guest
-      end
-
-      resources :news_posts do
-
-        reading do
-          allow :everyone
-        end
-
-        writing do
-          allow :admin
-        end
-
-        resources :comments, :except => [:destroy] do
-          allow :everyone
-          action :update do
-            allow :user do
-              object.author == user
-            end
-          end
-        end
-
-      end
-
-      namespace :admin do
-        resources :users do
-          allow :admin
-        end
-      end
-
+    resources :projects do
+      allow :everyone
     end
 
-=== In your user model
-
-Now we assign roles to users. For this, the users table needs to have a string
-column +role_name+. In your model, all you do is this:
-
-    # app/models/user.rb
-    class User < ActiveRecord::Base
-      has_role
+    resources :users do
+      allow :admin
     end
 
-You can now ask a user if she is allowed to access a given action:
+  end
+
+To give your user model a role, it needs to have an attribute +role_name+. The <tt>has_role</tt> macro wires everything together:
+
+  class User < ActiveRecord::Base
+    has_role
+  end
+
+You can now check if a user has permission to access a given action in your controllers and views:
     
-    # app/views/posts/index.html.erb
-    @posts.each do |post|
-      <%= render post %>
-      <% if current_user.may_update_post? post %>
-        <%= link_to 'Edit', edit_post_path(post) %>
-      <% end %>
-    <% end %>
-
-=== In your controllers
+  <% if current_user.may_update_project? @project %>
+    <%= link_to 'Edit', edit_project_path(@project) %>
+  <% end %>
 
 You can protect all actions in a controller through an Aegis resource with a single line:
 
-    # app/controllers/posts_controller.rb
-    class CommentsController
-      permissions :news_post_comments
-    end
-
-We understand that not all controllers are RESTful and that you can have custom actions and whatnot.
-Be assured that Aegis comes with great tools to deal with all of these cases.
-
-== Detailled API
-
-Working on it.
+  class ProjectsController
+    permissions :projects
+  end
 
 
-== Our stance on multiple roles per user
+== Further reading
 
-We believe that you should only distinguish roles that have different ways of resolving their permissions. A typical set of roles would be
+You are now familiar with the basic use case. Aegis can do a *lot* more than that.
+There is an awesome {documentation wiki}[http://wiki.github.com/makandra/aegis/] with detailled information on many basic and advanced topics, including:
 
-* anonymous guest (has access to nothing with some exceptions)
-* signed up user (has access to some things depending on its attributes and associations)
-* administrator (has access to everything)
+* {Defining roles and basic permissions}[http://wiki.github.com/makandra/aegis/defining-roles-and-basic-permissions]
+* {Checking permissions}[http://wiki.github.com/makandra/aegis/checking-permissions]
+* {Giving your user model a role}[http://wiki.github.com/makandra/aegis/giving-your-user-model-a-role]
+* {Defining permissions with resources}[http://wiki.github.com/makandra/aegis/defining-permissions-with-resources]
+* {Controller integration}[http://wiki.github.com/makandra/aegis/controller-integration]
+* {Giving default access to superusers}[http://wiki.github.com/makandra/aegis/giving-default-access-to-superusers]
+* {Distinguishing between reading and writing actions}[http://wiki.github.com/makandra/aegis/distinguishing-between-reading-and-writing-actions]
+* {Aliasing actions}[http://wiki.github.com/makandra/aegis/aliasing-actions]
+* {Checking permissions when no user is signed in}[http://wiki.github.com/makandra/aegis/checking-permissions-when-no-user-is-signed-in]
+* {Handling denied permissions in your controllers}[http://wiki.github.com/makandra/aegis/handling-denied-permissions-in-your-controllers]
+* {Changing behavior when a permission is undefined}[http://wiki.github.com/makandra/aegis/changing-behavior-when-a-permission-is-undefined]
+* {Multiple roles per user}[http://wiki.github.com/makandra/aegis/multiple-roles-per-user]
+* {Upgrading to Aegis 2}[http://wiki.github.com/makandra/aegis/upgrading-to-aegis-2]
 
-We don't do multiple, parametrized roles like "leader for project #2" and "author of post #7".
-That would be reinventing associations. Just use a single :user role and let your permission block
-query regular associations and attributes.
 
 == Installation
 
