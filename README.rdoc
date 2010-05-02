@@ -70,12 +70,11 @@ There is an awesome {documentation wiki}[http://wiki.github.com/makandra/aegis/]
 == Installation
 
 Add the following to your <tt>Initializer.run</tt> block in your <tt>environment.rb</tt>:
-    config.gem 'aegis', :source => 'http://gemcutter.org'
+    config.gem 'aegis'
 Then do a
     sudo rake gems:install
 
 Alternatively, use
-    sudo gem sources -a http://gemcutter.org
     sudo gem install aegis
 
 
