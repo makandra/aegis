@@ -50,7 +50,7 @@ You can protect all actions in a controller through an Aegis resource with a sin
 == Further reading
 
 You are now familiar with the basic use case. Aegis can do a *lot* more than that.
-There is an awesome {documentation wiki}[http://wiki.github.com/makandra/aegis/] with detailled information on many basic and advanced topics, including:
+There is an awesome {documentation wiki}[http://wiki.github.com/makandra/aegis/] with detailed information on many basic and advanced topics, including:
 
 * {Defining roles and basic permissions}[http://wiki.github.com/makandra/aegis/defining-roles-and-basic-permissions]
 * {Checking permissions}[http://wiki.github.com/makandra/aegis/checking-permissions]
