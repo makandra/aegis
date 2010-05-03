@@ -42,7 +42,7 @@ You can now check if a user has permission to access a given action in your cont
 
 You can protect all actions in a controller through an Aegis resource with a single line:
 
-  class ProjectsController
+  class ProjectsController < ApplicationController
     permissions :projects
   end
 
