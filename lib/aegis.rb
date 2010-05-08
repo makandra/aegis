@@ -1,5 +1,12 @@
 require 'ostruct'
 
+#for file in Dir["#{File.dirname(__FILE__)}/*/*.rb"]
+#  p file
+#end
+
+# Dir["#{File.dirname(__FILE__)}/**/*.rb"].each {|f| require f}
+
+require 'aegis/loader'
 require 'aegis/access_denied'
 require 'aegis/action'
 require 'aegis/compiler'
