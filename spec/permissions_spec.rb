@@ -196,8 +196,8 @@ describe Aegis::Permissions do
       frank = @user_class.new(:name => 'Frank', :role_name => 'user')
       waldo = @user_class.new(:name => 'Waldo', :role_name => 'user')
 
-      frank.may_update_post?('the post').should be_false
-      waldo.may_update_post?('the post').should be_true
+      @permissions.may?(frank, 'update_post', 'the post').should be_false
+      @permissions.may?(waldo, 'update_post', 'the post').should be_true
 
     end
 
@@ -317,8 +317,8 @@ describe Aegis::Permissions do
       end
 
       @user.stub(:password => "secret")
-      @user.may_sign_in?("wrong_password").should be_false
-      @user.may_sign_in?("secret").should be_true
+      @permissions.may?(@user, "sign_in", "wrong_password").should be_false
+      @permissions.may?(@user, "sign_in", "secret").should be_true
 
     end
 
@@ -335,7 +335,7 @@ describe Aegis::Permissions do
       end
 
       spy.should_receive(:observe).with("the property", "the comment", "additional argument")
-      @moderator.may_update_property_comment?("the property", "the comment", "additional argument")
+      @permissions.may?(@moderator, "update_property_comment", "the property", "the comment", "additional argument")
     end
 
     it "should evaluate additional resource actions" do
@@ -487,32 +487,32 @@ describe Aegis::Permissions do
       @permissions.class_eval do
         missing_action_means :default_permission
       end
-      @user.may_missing_action?.should be_false
-      @admin.may_missing_action?.should be_true
+      @permissions.may?(@user, 'missing_action').should be_false
+      @permissions.may?(@admin, 'missing_action').should be_true
     end
 
     it "should grant everyone access if the strategy is :allow" do
       @permissions.class_eval do
         missing_action_means :allow
       end
-      @user.may_missing_action?.should be_true
-      @admin.may_missing_action?.should be_true
+      @permissions.may?(@user, 'missing_action').should be_true
+      @permissions.may?(@admin, 'missing_action').should be_true
     end
 
     it "should deny everyone access if the strategy is :deny" do
       @permissions.class_eval do
         missing_action_means :deny
       end
-      @user.may_missing_action?.should be_false
-      @admin.may_missing_action?.should be_false
+      @permissions.may?(@user, 'missing_action').should be_false
+      @permissions.may?(@admin, 'missing_action').should be_false
     end
 
     it "should raise an error if the strategy is :error" do
       @permissions.class_eval do
         missing_action_means :error
       end
-      lambda { @user.may_missing_action? }.should raise_error
-      lambda { @admin.may_missing_action? }.should raise_error
+      lambda { @permissions.may?(@user, 'missing_action') }.should raise_error
+      lambda { @permissions.may?(@admin, 'missing_action') }.should raise_error
     end
 
   end
@@ -545,6 +545,27 @@ describe Aegis::Permissions do
     end
 
   end
+
+  describe 'find_action_by_path' do
+
+    before(:each) do
+      @permissions.class_eval do
+        action :action_name do
+          allow :user
+        end
+      end
+    end
+
+    it "should find an action by a string" do
+      @permissions.find_action_by_path('action_name').should_not be_abstract
+    end
+
+    it "should find an action by a symbol" do
+      @permissions.find_action_by_path(:action_name).should_not be_abstract
+    end
+
+  end
+
 
 end
 

@@ -16,9 +16,22 @@ describe Aegis::Loader do
 
   end
 
+  describe 'load_paths' do
+
+    it "should require all paths" do
+
+      Aegis::Loader.stub(:paths => ['one', 'two'])
+      Aegis::Loader.should_receive(:require).with('one')
+      Aegis::Loader.should_receive(:require).with('two')
+      Aegis::Loader.load_paths
+
+    end
+
+  end
+
   describe 'loaded?' do
 
-    it "should be loaded" do
+    it "should be loaded by the time this test runs" do
       Aegis::Loader.should be_loaded
     end
 
