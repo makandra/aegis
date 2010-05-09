@@ -1,26 +1,35 @@
-class Aegis::Loader
-  class << self
+module Aegis
+  class Loader
+    class << self
 
-    def paths
-      [ 'aegis/access_denied',
-        'aegis/action',
-        'aegis/compiler',
-        'aegis/has_role',
-        'aegis/parser',
-        'aegis/permissions',
-        'aegis/resource',
-        'aegis/role',
-        'aegis/sieve',
+      def paths
+        [ 'ostruct',
 
-        'rails/action_controller',
-        'rails/active_record' ]
-    end
+          'aegis/access_denied',
+          'aegis/action',
+          'aegis/compiler',
+          'aegis/has_role',
+          'aegis/parser',
+          'aegis/permissions',
+          'aegis/resource',
+          'aegis/role',
+          'aegis/sieve',
 
-    def load
-      for path in paths
-        require path
+          'rails/action_controller',
+          'rails/active_record' ]
       end
+
+      def load_paths
+        for path in paths
+          require path
+        end
+        @loaded = true
+      end
+
+      def loaded?
+        @loaded
+      end
+
     end
-    
   end
 end
