@@ -17,6 +17,8 @@ module Aegis
     end
 
     def action(*args, &block)
+      # useful warning for people upgrading from Aegis 2
+      raise "action blocks do not take block arguments. allow/deny blocks do." if block && block.arity > 0
       split_definitions(*args) do |name, options|
         @atoms.push({
           :type => :action,

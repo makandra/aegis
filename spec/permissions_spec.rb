@@ -322,6 +322,18 @@ describe Aegis::Permissions do
 
     end
 
+    it "should raise an error if the argument is given to the action (Aegis 1) instead of the allow block (Aegis 2)" do
+
+      expect do
+        @permissions.class_eval do
+          action :sign_in do |password|
+            allow :everyone
+          end
+        end
+      end.to raise_error
+
+    end
+
     it "should provide the object and parent_object for a sieve block" do
       spy = stub("spy")
       @permissions.class_eval do
@@ -566,6 +578,4 @@ describe Aegis::Permissions do
 
   end
 
-
 end
-
