@@ -69,13 +69,14 @@ There is an awesome {documentation wiki}[http://wiki.github.com/makandra/aegis/]
 
 == Installation
 
-Add the following to your <tt>Initializer.run</tt> block in your <tt>environment.rb</tt>:
-    config.gem 'aegis'
-Then do a
-    sudo rake gems:install
-
-Alternatively, use
+Aegis is a gem, which you can install with
     sudo gem install aegis
+
+In Rails 2, add the following to your <tt>environment.rb</tt>:
+    config.gem 'aegis'
+
+In Rails 3, add the following to your <tt>Gemfile</tt>:
+    gem 'aegis'
 
 
 == Credits
