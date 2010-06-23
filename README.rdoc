@@ -78,6 +78,9 @@ In Rails 2, add the following to your <tt>environment.rb</tt>:
 In Rails 3, add the following to your <tt>Gemfile</tt>:
     gem 'aegis'
 
+
+== Rails 3 compatibility
+
 We cannot guarantee Rails 3 compatibility at this point, but we will upgrade the gem when Rails 3 is released.
 
 
