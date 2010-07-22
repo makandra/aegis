@@ -88,6 +88,6 @@ We cannot guarantee Rails 3 compatibility at this point, but we will upgrade the
 
 Henning Koch, Tobias Kraze
 
-{gem-session.com}[http://gem-session.com/]
+{makandra.com}[http://makandra.com/]
 
-{www.makandra.de}[http://www.makandra.de/]
+{gem-session.com}[http://gem-session.com/]
