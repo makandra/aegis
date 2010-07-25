@@ -29,8 +29,7 @@ module Aegis
         validate_options = validate_options[0] || {}
 
         send :define_method, :validate_role do
-          role = permissions.call.find_role_by_name(role_name)
-          unless role
+          unless role_names.size > 0 && role_names.size == roles.size
             message = validate_options[:message] || I18n.translate('activerecord.errors.messages.inclusion')
             errors.add :role_name, message
           end

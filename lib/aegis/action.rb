@@ -24,12 +24,9 @@ module Aegis
 
     def may?(user, *args)
       context = extract_context(user, args)
-      may = user.role.may_by_default?
-      for sieve in sieves
-        opinion = sieve.may?(context, *args)
-        may = opinion unless opinion.nil?
+      user.roles.any? do |role|
+        may_as_role?(role, context, *args)
       end
-      may
     end
 
     def may!(user, *args)
@@ -81,6 +78,16 @@ module Aegis
     end
 
     private
+
+    def may_as_role?(role, context, *args)
+      context.role = role
+      may = role.may_by_default?
+      for sieve in sieves
+        opinion = sieve.may?(context, *args)
+        may = opinion unless opinion.nil?
+      end
+      may
+    end
 
     # not *args so we can change the array reference
     def extract_context(user, args)

@@ -5,6 +5,7 @@ describe Aegis::Permissions do
   before(:each) do
 
     permissions = @permissions = Class.new(Aegis::Permissions) do
+      role :guest
       role :user
       role :moderator
       role :admin, :default_permission => :allow
@@ -114,6 +115,40 @@ describe Aegis::Permissions do
 
       @permissions.may?(@user, 'update_news').should be_false
       @permissions.may?(@moderator, 'update_news').should be_true
+
+    end
+
+    describe 'multiple roles' do
+
+      before(:each) do
+
+        @permissions.class_eval do
+          action :update_news do
+            allow :moderator
+          end
+        end
+
+      end
+
+      it "should allow a user with multiple roles access if at least one role passes, even if other roles don't" do
+        person = @user_class.new(:role_names => ['user', 'moderator'])
+        @permissions.may?(person, 'update_news').should be_true
+      end
+
+      it "should deny a user with multiple roles access if no role passes" do
+        person = @user_class.new(:role_names => ['user', 'guest'])
+        @permissions.may?(person, 'update_news').should be_false
+      end
+
+      it "should deny a user with no roles access" do
+        person = @user_class.new(:role_names => [])
+        @permissions.may?(person, 'update_news').should be_false
+      end
+
+      it "should honor default permissions" do
+        person = @user_class.new(:role_names => ['admin'])
+        @permissions.may?(person, 'update_news').should be_true
+      end
 
     end
 

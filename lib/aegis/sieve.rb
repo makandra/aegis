@@ -9,7 +9,7 @@ module Aegis
     end
 
     def may?(context, *args)
-      matches_role = @role_name == 'everyone' || @role_name == context.user.role.name
+      matches_role = @role_name == 'everyone' || @role_name == context.role.name
       if matches_role
         if @block
           block_result = context.instance_exec(*args, &@block)

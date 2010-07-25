@@ -4,8 +4,8 @@ describe Aegis::Sieve do
 
   before(:each) do
     @role = stub('role', :name => 'user')
-    @user = stub('user', :role => @role)
-    @context = OpenStruct.new(:user => @user)
+    # user = stub('user', :role => role)
+    @context = OpenStruct.new(:role => @role)
   end
 
   describe 'may? 'do

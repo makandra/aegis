@@ -153,20 +153,26 @@ describe Aegis::HasRole do
       user.run_callbacks(:validate)
     end
 
-    it "should add an inclusion error to the role name if the role name is blank" do
+    it "should add an inclusion error to the role name if the role name is nil" do
+      user = @user_class.new(:role_name => nil)
+      user.errors.should_receive(:add).with(:role_name, I18n.translate('activerecord.errors.messages.inclusion'))
+      user.send(:validate_role)
+    end
+
+    it "should add an inclusion error to the role name if the role name is an empty string" do
       user = @user_class.new(:role_name => '')
       user.errors.should_receive(:add).with(:role_name, I18n.translate('activerecord.errors.messages.inclusion'))
       user.send(:validate_role)
     end
 
-    it "should add an inclusion error to the role name if the role name doesn't match a role" do
-      user = @user_class.new(:role_name => 'nonexisting_role')
+    it "should add an inclusion error to the role name if a role name doesn't match a role" do
+      user = @user_class.new(:role_name => 'user,nonexisting_role')
       user.errors.should_receive(:add).with(:role_name, I18n.translate('activerecord.errors.messages.inclusion'))
       user.send(:validate_role)
     end
 
-    it "should add no error if the role name matches a role" do
-      user = @user_class.new(:role_name => 'admin')
+    it "should add no error if all role names matches a role" do
+      user = @user_class.new(:role_name => 'admin,user')
       user.errors.should_not_receive(:add)
       user.send(:validate_role)
     end
