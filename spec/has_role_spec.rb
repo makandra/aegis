@@ -43,22 +43,6 @@ describe Aegis::HasRole do
       user.role.should be_nil
     end
 
-    it "should read the role name from a custom reader" do
-      permissions_class = @permissions_class
-      @user_class.class_eval { has_role :reader => "role_handle", :permissions => permissions_class }
-      user = @user_class.new
-      user.should_receive(:role_handle).and_return('admin')
-      user.role
-    end
-
-    it "should read the role name from a custom accessor" do
-      permissions_class = @permissions_class
-      @user_class.class_eval { has_role :accessor => "role_handle", :permissions => permissions_class }
-      user = @user_class.new
-      user.should_receive(:role_handle).and_return('admin')
-      user.role
-    end
-
     it "should take a default role" do
       permissions_class = @permissions_class
       @user_class.class_eval { has_role :default => "admin", :permissions => permissions_class }
@@ -77,22 +61,6 @@ describe Aegis::HasRole do
     it "should write the role name to the role_name attribute" do
       user = @user_class.new
       user.should_receive(:role_name=).with('admin')
-      user.role = @admin_role
-    end
-
-    it "should write the role name to a custom writer" do
-      permissions_class = @permissions_class
-      @user_class.class_eval { has_role :writer => "role_handle=", :permissions => permissions_class }
-      user = @user_class.new
-      user.should_receive(:role_handle=).with('admin')
-      user.role = @admin_role
-    end
-
-    it "should write the role name to a custom accessor" do
-      permissions_class = @permissions_class
-      @user_class.class_eval { has_role :accessor => "role_handle", :permissions => permissions_class }
-      user = @user_class.new
-      user.should_receive(:role_handle=).with('admin')
       user.role = @admin_role
     end
 

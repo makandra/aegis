@@ -3,35 +3,26 @@ module Aegis
 
     def has_role(options = {})
 
-      if options[:accessor]
-        options[:reader] = "#{options[:accessor]}"
-        options[:writer] = "#{options[:accessor]}="
-        options.delete(:accessor)
-      end
-
-      get_role_name = (options[:reader] || "role_name").to_sym
-      set_role_name = (options[:writer] || "role_name=").to_sym
-
       permissions = lambda { Aegis::Permissions.app_permissions(options[:permissions]) }
 
       may_pattern = /^may_(.+?)([\!\?])$/
 
       send :define_method, :role do
-        permissions.call.find_role_by_name(send(get_role_name))
+        permissions.call.find_role_by_name(role_name)
       end
 
       send :define_method, :role= do |role|
-        send(set_role_name, role.name)
+        self.role_name = role.name
       end
 
       metaclass.send :define_method, :validates_role do |*validate_options|
         validate_options = validate_options[0] || {}
 
         send :define_method, :validate_role do
-          role = permissions.call.find_role_by_name(send(get_role_name))
+          role = permissions.call.find_role_by_name(role_name)
           unless role
             message = validate_options[:message] || I18n.translate('activerecord.errors.messages.inclusion')
-            errors.add get_role_name, message
+            errors.add :role_name, message
           end
         end
 
@@ -46,8 +37,8 @@ module Aegis
         end
 
         send :define_method, :set_default_role_name do
-          if new_record? && send(get_role_name).blank?
-            send(set_role_name, options[:default])
+          if new_record? && role_name.blank?
+            self.role_name = options[:default]
           end
         end
 
