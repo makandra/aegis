@@ -7,12 +7,20 @@ module Aegis
 
       may_pattern = /^may_(.+?)([\!\?])$/
 
+      send :define_method, :role_names do
+        (role_name || '').split(/\s*,\s*/)
+      end
+
+      send :define_method, :role_names= do |role_names|
+        self.role_name = role_names.join(',')
+      end
+
       send :define_method, :role do
         roles.first
       end
 
       send :define_method, :roles do
-        (role_name || '').split(/\s*,\s*/).collect do |role_name|
+        role_names.collect do |role_name|
           permissions.call.find_role_by_name(role_name)
         end.compact
       end
