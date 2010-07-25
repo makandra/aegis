@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{aegis}
-  s.version = "2.0.4"
+  s.version = "2.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henning Koch", "Tobias Kraze"]
-  s.date = %q{2010-06-23}
+  s.date = %q{2010-07-25}
   s.description = %q{Aegis is an authorization solution for Ruby on Rails that supports roles and a RESTish, resource-style declaration of permission rules.}
   s.email = %q{henning.koch@makandra.de}
   s.extra_rdoc_files = [
@@ -92,10 +92,10 @@ Gem::Specification.new do |s|
      "spec/app_root/lib/console_with_fixtures.rb",
      "spec/action_controller_spec.rb",
      "spec/controllers/reviews_controller_spec.rb",
-     "spec/has_role_spec.rb",
-     "spec/permissions_spec.rb",
      "spec/spec_helper.rb",
      "spec/loader_spec.rb",
+     "spec/has_role_spec.rb",
+     "spec/permissions_spec.rb",
      "spec/sieve_spec.rb"
   ]
 
