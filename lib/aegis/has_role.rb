@@ -8,11 +8,13 @@ module Aegis
       may_pattern = /^may_(.+?)([\!\?])$/
 
       send :define_method, :role do
-        permissions.call.find_role_by_name(role_name)
+        roles.first
       end
 
-      send :define_method, :role= do |role|
-        self.role_name = role.name
+      send :define_method, :roles do
+        (role_name || '').split(/\s*,\s*/).collect do |role_name|
+          permissions.call.find_role_by_name(role_name)
+        end.compact
       end
 
       metaclass.send :define_method, :validates_role do |*validate_options|

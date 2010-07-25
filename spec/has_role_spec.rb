@@ -21,47 +21,64 @@ describe Aegis::HasRole do
     it "should define accessors for the role association" do
       user = @user_class.new
       user.should respond_to(:role)
-      user.should respond_to(:role=)
+      user.should respond_to(:roles)
     end
 
   end
 
   describe 'role' do
 
-    it "should be nil by default" do
+    it "should return the first role" do
       user = @user_class.new
-      user.role.should be_nil
+      user.should_receive(:roles).and_return(['first role', 'second role'])
+      user.role.should == 'first role'
     end
 
-    it "should return the role corresponding to the role_name" do
-      user = @user_class.new(:role_name => 'admin')
-      user.role.name.should == 'admin'
-    end
-
-    it "should be nil if the role_name doesn't match a known role" do
-      user = @user_class.new(:role_name => 'nonexisting_role_name')
-      user.role.should be_nil
-    end
-
-    it "should take a default role" do
-      permissions_class = @permissions_class
-      @user_class.class_eval { has_role :default => "admin", :permissions => permissions_class }
+    it "should be nil if no roles are associated" do
       user = @user_class.new
-      user.role.name.should == 'admin'
+      user.should_receive(:roles).and_return([])
+      user.role.should be_nil
     end
 
   end
 
-  describe 'role=' do
+  describe 'roles' do
 
-    before :each do
-      @admin_role = @permissions_class.find_role_by_name('admin')
+    it "should be empty if the role name is blank" do
+      user = @user_class.new(:role_name => '')
+      user.roles.should be_empty
     end
 
-    it "should write the role name to the role_name attribute" do
+    it "should be empty if the role_name is nil" do
+      user = @user_class.new(:role_name => nil)
+      user.roles.should be_empty
+    end
+
+    it "should return a single role as an array with a single element" do
+      user = @user_class.new(:role_name => 'admin')
+      user.roles.collect(&:name).should == ['admin'] 
+    end
+
+    it "should return multiple, comma-separated roles as an array" do
+      user = @user_class.new(:role_name => 'admin,user')
+      user.roles.collect(&:name).should == ['admin', 'user']
+    end
+
+    it "should ignore whitespace around the comma-separator" do
+      user = @user_class.new(:role_name => 'admin , user')
+      user.roles.collect(&:name).should == ['admin', 'user']
+    end
+
+    it "should ignore unknown role names that doesn't match a known role" do
+      user = @user_class.new(:role_name => 'admin,nonexisting_role_name,user')
+      user.roles.collect(&:name).should == ['admin', 'user']
+    end
+
+    it "should honor the default for new records" do
+      permissions_class = @permissions_class
+      @user_class.class_eval { has_role :permissions => permissions_class, :default => "admin,user" }
       user = @user_class.new
-      user.should_receive(:role_name=).with('admin')
-      user.role = @admin_role
+      user.roles.collect(&:name).should == ['admin', 'user']
     end
 
   end
