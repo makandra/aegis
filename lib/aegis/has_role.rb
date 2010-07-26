@@ -25,6 +25,10 @@ module Aegis
         end.compact
       end
 
+      send :define_method, :has_role? do |role_name|
+        role_names.include?(role_name.to_s)
+      end
+
       metaclass.send :define_method, :validates_role do |*validate_options|
         validate_options = validate_options[0] || {}
 

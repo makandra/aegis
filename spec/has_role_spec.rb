@@ -6,6 +6,7 @@ describe Aegis::HasRole do
 
     @permissions_class = permissions_class = Class.new(Aegis::Permissions) do
       role :user
+      role :moderator
       role :admin
     end
 
@@ -22,6 +23,7 @@ describe Aegis::HasRole do
       user = @user_class.new
       user.should respond_to(:role)
       user.should respond_to(:roles)
+      user.should respond_to(:has_role?)
     end
 
     it "should allow a default for new records" do
@@ -100,6 +102,26 @@ describe Aegis::HasRole do
       user = @user_class.new
       user.should_receive(:role_name=).with("first,second")
       user.role_names = ['first', 'second']
+    end
+
+  end
+
+  describe 'has_role?' do
+
+    it "should return true if the user has the given role name" do
+      user = @user_class.new(:role_name => 'admin, user')
+      user.should have_role('admin')
+      user.should have_role('user')
+    end
+
+    it "should return false if the user does not have the given role name" do
+      user = @user_class.new(:role_name => 'admin, user')
+      user.should_not have_role('moderator')
+    end
+
+    it "should allow to query the role name as a symbol instead of a string" do
+      user = @user_class.new(:role_name => 'admin, user')
+      user.should have_role(:admin)
     end
 
   end
