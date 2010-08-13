@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{aegis}
-  s.version = "2.1.1"
+  s.version = "2.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henning Koch", "Tobias Kraze"]
-  s.date = %q{2010-07-26}
+  s.date = %q{2010-08-13}
   s.description = %q{Aegis is an authorization solution for Ruby on Rails that supports roles and a RESTish, resource-style declaration of permission rules.}
   s.email = %q{henning.koch@makandra.de}
   s.extra_rdoc_files = [
@@ -23,9 +23,9 @@ Gem::Specification.new do |s|
      "VERSION",
      "aegis.gemspec",
      "lib/aegis.rb",
-     "lib/aegis/access_denied.rb",
      "lib/aegis/action.rb",
      "lib/aegis/compiler.rb",
+     "lib/aegis/errors.rb",
      "lib/aegis/has_role.rb",
      "lib/aegis/loader.rb",
      "lib/aegis/parser.rb",
@@ -33,11 +33,13 @@ Gem::Specification.new do |s|
      "lib/aegis/resource.rb",
      "lib/aegis/role.rb",
      "lib/aegis/sieve.rb",
+     "lib/aegis/spec.rb",
      "lib/rails/action_controller.rb",
      "lib/rails/active_record.rb",
      "spec/action_controller_spec.rb",
      "spec/app_root/app/controllers/application_controller.rb",
      "spec/app_root/app/controllers/reviews_controller.rb",
+     "spec/app_root/app/controllers/songs_controller.rb",
      "spec/app_root/app/models/permissions.rb",
      "spec/app_root/app/models/property.rb",
      "spec/app_root/app/models/review.rb",
@@ -74,6 +76,7 @@ Gem::Specification.new do |s|
   s.test_files = [
     "spec/app_root/app/controllers/application_controller.rb",
      "spec/app_root/app/controllers/reviews_controller.rb",
+     "spec/app_root/app/controllers/songs_controller.rb",
      "spec/app_root/app/models/permissions.rb",
      "spec/app_root/app/models/property.rb",
      "spec/app_root/app/models/review.rb",
