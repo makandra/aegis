@@ -4,12 +4,12 @@ describe Aegis::Loader do
 
   describe 'paths' do
 
-    it "should return all paths in the lib folder" do
+    it "should return all paths in the lib folder, except files that are optionally loaded" do
 
       root = "#{File.dirname(__FILE__)}/../lib/"
-      Dir["#{root}*/*.rb"].collect do |file|
+      Dir["#{root}*/*.rb"].each do |file|
         path = file.sub(root, "").sub(/\.rb$/, "")
-        Aegis::Loader.paths.should include(path) unless path == 'aegis/loader'
+        Aegis::Loader.paths.should include(path) unless path == 'aegis/loader' || path == 'aegis/spec'
       end
 
     end

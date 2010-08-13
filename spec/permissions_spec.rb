@@ -399,7 +399,7 @@ describe Aegis::Permissions do
       end
 
       @permissions.may?(@user, "zoom_into_property", "the property").should be_true
-      @permissions.may?(@user, "view_all_properties", "the property").should be_true
+      @permissions.may?(@user, "view_all_properties").should be_true
 
     end
 
@@ -588,6 +588,17 @@ describe Aegis::Permissions do
 
       @permissions.guess_action(:posts, 'index', 'index' => 'view_all_posts').should_not be_abstract
       @permissions.guess_action(:posts, 'update', 'index' => 'view_all_posts').should_not be_abstract
+
+    end
+
+    it "should find a root action that has the same name as the given resource" do
+
+      @permissions.class_eval do
+        action :author_section
+      end
+
+      @permissions.guess_action(:author_section, 'irrelevant_action_name').should_not be_abstract
+      @permissions.guess_action(:undefined_action, 'irrelevant_action_name').should be_abstract
 
     end
 

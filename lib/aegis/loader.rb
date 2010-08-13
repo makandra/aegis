@@ -5,7 +5,7 @@ module Aegis
       def paths
         [ 'ostruct',
 
-          'aegis/access_denied',
+          'aegis/errors',
           'aegis/action',
           'aegis/compiler',
           'aegis/has_role',

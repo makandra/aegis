@@ -12,7 +12,7 @@ module Aegis
       end
 
       send :define_method, :role_names= do |role_names|
-        self.role_name = role_names.join(',')
+        self.role_name = role_names.reject(&:blank?).join(',')
       end
 
       send :define_method, :role do
@@ -29,6 +29,7 @@ module Aegis
         role_names.include?(role_name.to_s)
       end
 
+      metaclass ||= singleton_class
       metaclass.send :define_method, :validates_role do |*validate_options|
         validate_options = validate_options[0] || {}
 

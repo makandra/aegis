@@ -130,7 +130,8 @@ module Aegis
           [ mapped.to_s ]
         else
           [ "#{action_name}_#{resource_name.to_s.singularize}",
-            "#{action_name}_#{resource_name.to_s.pluralize}" ]
+            "#{action_name}_#{resource_name.to_s.pluralize}",
+            resource_name ]
         end
       end
 

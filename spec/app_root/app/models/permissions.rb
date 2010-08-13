@@ -10,5 +10,9 @@ class Permissions < Aegis::Permissions
     end
   end
 
+  resources :maps do
+    action :with_permission, :collection => true
+  end
+
 end
 

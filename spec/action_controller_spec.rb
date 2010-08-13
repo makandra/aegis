@@ -28,6 +28,37 @@ describe 'Aegis::ActionController' do
 
   end
 
+  describe 'require_permissions' do
+
+    it "should set a before_filter :unchecked_permissions" do
+      @controller_class.should_receive(:before_filter).with(:unchecked_permissions, :only => :show)
+      @controller_class.class_eval do
+        require_permissions :only => :show
+      end
+    end
+
+  end
+
+  describe 'skip_permissions' do
+
+    it "should skip a before_filter :unchecked_permissions" do
+      @controller_class.should_receive(:skip_before_filter).with(:unchecked_permissions, :only => :show)
+      @controller_class.class_eval do
+        skip_permissions :only => :show
+      end
+    end
+
+  end
+
+  describe 'unchecked_permissions' do
+
+    it "should raise Aegis::UncheckedPermissions" do
+      controller = @controller_class.new
+      expect { controller.send(:unchecked_permissions) }.to raise_error(Aegis::UncheckedPermissions)
+    end
+
+  end
+
   describe 'permissions' do
 
     it "should fetch the context through #object, #parent_object and #current_user by default" do

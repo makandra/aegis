@@ -104,6 +104,12 @@ describe Aegis::HasRole do
       user.role_names = ['first', 'second']
     end
 
+    it "should ignore blank role names" do
+      user = @user_class.new
+      user.should_receive(:role_name=).with("first,second")
+      user.role_names = ['', nil, 'first', '', nil, 'second', '', nil]
+    end
+
   end
 
   describe 'has_role?' do
