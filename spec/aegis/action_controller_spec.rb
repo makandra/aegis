@@ -1,6 +1,6 @@
-require File.dirname(__FILE__) + "/spec_helper"
+require "spec_helper"
 
-describe 'Aegis::ActionController' do
+describe Aegis::ActionController do
 
   before(:each) do
 

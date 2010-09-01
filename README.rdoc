@@ -64,6 +64,7 @@ There is an awesome {documentation wiki}[http://wiki.github.com/makandra/aegis/]
 * {Handling denied permissions in your controllers}[http://wiki.github.com/makandra/aegis/handling-denied-permissions-in-your-controllers]
 * {Changing behavior when a permission is undefined}[http://wiki.github.com/makandra/aegis/changing-behavior-when-a-permission-is-undefined]
 * {Multiple roles per user}[http://wiki.github.com/makandra/aegis/multiple-roles-per-user]
+* {Testing permissions}[http://wiki.github.com/makandra/aegis/testing-permissions]
 * {Upgrading to Aegis 2}[http://wiki.github.com/makandra/aegis/upgrading-to-aegis-2]
 
 
