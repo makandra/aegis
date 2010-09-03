@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Aegis::ActionController do
+describe Aegis::Controller do
 
   before(:each) do
 
@@ -21,6 +21,7 @@ describe Aegis::ActionController do
     user = @user = @user_class.new(:role_name => 'user')
 
     @controller_class = Class.new(ActionController::Base) do
+      include Aegis::Controller
       define_method :current_user do
         user
       end

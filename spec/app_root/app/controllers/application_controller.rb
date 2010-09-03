@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  include Aegis::Controller
 
   require_permissions
 

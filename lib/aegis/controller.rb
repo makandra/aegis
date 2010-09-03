@@ -1,5 +1,10 @@
 module Aegis
-  module ActionController
+  module Controller
+
+    def self.included(base)
+      base.send :include, InstanceMethods
+      base.send :extend, ClassMethods
+    end
 
     module ClassMethods
 
@@ -66,8 +71,4 @@ module Aegis
 
   end
 end
-
-ActionController::Base.extend Aegis::ActionController::ClassMethods
-ActionController::Base.send :include, Aegis::ActionController::InstanceMethods
-
 

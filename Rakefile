@@ -29,6 +29,7 @@ begin
     gemspec.homepage = "http://github.com/makandra/aegis"
     gemspec.description = "Aegis is an authorization solution for Ruby on Rails that supports roles and a RESTish, resource-style declaration of permission rules."
     gemspec.authors = ["Henning Koch", "Tobias Kraze"]
+    gemspec.post_install_message = "Upgrade notice:\nIf you are using Aegis' automatic controller integration, include Aegis::Controller in your ApplicationController\nAlso see http://wiki.github.com/makandra/aegis/controller-integration\n"
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"

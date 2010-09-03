@@ -14,9 +14,8 @@ module Aegis
           'aegis/resource',
           'aegis/role',
           'aegis/sieve',
-
-          'rails/action_controller',
-          'rails/active_record' ]
+          'aegis/controller',
+          'aegis/active_record_ext' ]
       end
 
       def load_paths

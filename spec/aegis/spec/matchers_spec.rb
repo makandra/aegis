@@ -38,6 +38,7 @@ describe Aegis::Spec::Matchers do
 
     before(:each) do
       @controller = Class.new(ActionController::Base) do
+        include Aegis::Controller
         permissions :post
       end.new
     end
