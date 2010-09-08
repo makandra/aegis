@@ -28,9 +28,9 @@ module Aegis
       send :define_method, :has_role? do |role_name|
         role_names.include?(role_name.to_s)
       end
-
-      metaclass ||= singleton_class
-      metaclass.send :define_method, :validates_role do |*validate_options|
+      
+      prototype = respond_to?(:singleton_class) ? singleton_class : metaclass
+      prototype.send :define_method, :validates_role do |*validate_options|
         validate_options = validate_options[0] || {}
 
         send :define_method, :validate_role do
