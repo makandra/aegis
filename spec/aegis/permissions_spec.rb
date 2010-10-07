@@ -407,11 +407,11 @@ describe Aegis::Permissions do
 
       @permissions.class_eval do
         resources :posts do
+          action :syndicate, :writing => false
+          action :close
           reading do
             allow :user
           end
-          action :syndicate, :writing => false
-          action :close
         end
       end
 
@@ -429,11 +429,11 @@ describe Aegis::Permissions do
 
       @permissions.class_eval do
         resources :posts do
+          action :syndicate, :writing => false
+          action :close
           writing do
             allow :moderator
           end
-          action :syndicate, :writing => false
-          action :close
         end
       end
 
@@ -471,6 +471,33 @@ describe Aegis::Permissions do
       @permissions.find_action_by_path('index_posts').should_not be_abstract
     end
 
+    it 'should allow to override individual actions' do
+      @permissions.class_eval do
+        resources :posts do
+          allow :everyone
+          action :create do
+            deny :everyone
+          end
+        end
+      end
+      @permissions.may?(@user, 'index_posts').should be_true
+      @permissions.may?(@user, 'create_post').should be_false
+    end
+
+    it 'should allow to repeatedly define permissions for the same action, deciding for the last directive that matched' do
+      @permissions.class_eval do
+        resources :posts do
+          action :create do
+            allow :everyone
+          end
+          action :create do
+            deny :user
+          end
+        end
+      end
+      @permissions.may?(@admin, 'create_posts').should be_true
+      @permissions.may?(@user, 'create_post').should be_false
+    end
 
     it "should alias action names for all actions and resources, aliasing #new and #edit by default" do
 

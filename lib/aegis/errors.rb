@@ -6,4 +6,7 @@ module Aegis
   class UncheckedPermissions < StandardError
   end
 
+  class InvalidSyntax < StandardError
+  end
+
 end

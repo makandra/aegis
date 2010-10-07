@@ -17,12 +17,15 @@ module Aegis
     end
 
     def compile(atoms)
-      grouped_atoms = group_atoms(atoms)
-      for atom in grouped_atoms[:structure] || []
-        compile_structure(atom)
-      end
-      for atom in grouped_atoms[:sieve] || []
-        compile_sieve(atom)
+      for atom in atoms
+        case atom_group(atom)
+        when :structure
+          compile_structure(atom)
+        when :sieve
+          compile_sieve(atom)
+        else
+          unexpected_atom_type!(atom)
+        end
       end
     end
 
@@ -43,7 +46,7 @@ module Aegis
       when :resources
         compile_child_resource(atom, :collection)
       else
-        "Unexpected atom type: #{atom[:type]}"
+        unexpected_atom_type!(atom)
       end
     end
 
@@ -82,7 +85,7 @@ module Aegis
           compile_sieve(child, @resource.writing_actions)
         end
       else
-        "Unexpected atom type: #{atom[:type]}"
+        unexpected_atom_type!(atom)
       end
     end
 
@@ -103,10 +106,12 @@ module Aegis
         :pluralize_resource => options[:collection] }
     end
 
-    def group_atoms(atoms)
-      atoms.group_by do |atom|
-        ATOM_GROUPS[atom[:type]]
-      end
+    def atom_group(atom)
+      ATOM_GROUPS[atom[:type]]
+    end
+
+    def unexpected_atom_type!(atom)
+      raise Aegis::InvalidSyntax, "Unexpected atom type: #{atom[:type]}"
     end
 
   end
