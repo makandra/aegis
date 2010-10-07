@@ -9,4 +9,10 @@ module Aegis
   class InvalidSyntax < StandardError
   end
 
+  class MissingUser < StandardError
+  end
+
+  class MissingAction < StandardError
+  end
+
 end

@@ -214,7 +214,9 @@ describe Aegis::Permissions do
         end
       end
 
-      @permissions.may?(@moderator, 'update_post', "the post").should be_true
+      expect do
+        @permissions.may?(@moderator, 'update_post')
+      end.to raise_error(ArgumentError)
 
     end
 
@@ -357,6 +359,16 @@ describe Aegis::Permissions do
 
     end
 
+    it 'should raise an error when trying to define a role named "everyone"' do
+
+      expect do
+        @permissions.class_eval do
+          role :everyone
+        end
+      end.to raise_error(Aegis::InvalidSyntax)
+
+    end
+
     it "should raise an error if the argument is given to the action (Aegis 1) instead of the allow block (Aegis 2)" do
 
       expect do
@@ -365,7 +377,19 @@ describe Aegis::Permissions do
             allow :everyone
           end
         end
-      end.to raise_error
+      end.to raise_error(Aegis::InvalidSyntax)
+
+    end
+
+    it 'should raise an error if a #permission (singular) method is called (which no longer exists in Aegis 2)' do
+
+      expect do
+        @permissions.class_eval do
+          permission :foo do
+            allow :everyone
+          end
+        end
+      end.to raise_error(Aegis::InvalidSyntax)
 
     end
 
@@ -447,6 +471,26 @@ describe Aegis::Permissions do
       @permissions.may?(@moderator, 'syndicate_post', "the post").should be_false
       @permissions.may?(@moderator, "close_post", "the post").should be_true
 
+    end
+
+    it 'should raise an error if a #reading directive is stated without a block' do
+      expect do
+        @permissions.class_eval do
+          resources :posts do
+            reading
+          end
+        end
+      end.to raise_error(Aegis::InvalidSyntax)
+    end
+
+    it 'should raise an error if a #writing directive is stated without a block' do
+      expect do
+        @permissions.class_eval do
+          resources :posts do
+            writing
+          end
+        end
+      end.to raise_error(Aegis::InvalidSyntax)
     end
 
     it "should allow resources with only selected actions" do
@@ -536,10 +580,10 @@ describe Aegis::Permissions do
   describe 'behavior when checking permissions without a user' do
 
     it "should raise an error if the user is nil" do
-      lambda { @permissions.may?(nil, :some_action) }.should raise_error
+      expect { @permissions.may?(nil, :some_action) }.to raise_error(Aegis::MissingUser)
     end
 
-    it "should substitute the results from the blank user strategy" do
+    it "should substitute the results from the missing user strategy" do
       @permissions.class_eval do
         missing_user_means { User.new(:role_name => 'user') }
         action :create_post do
@@ -585,8 +629,8 @@ describe Aegis::Permissions do
       @permissions.class_eval do
         missing_action_means :error
       end
-      lambda { @permissions.may?(@user, 'missing_action') }.should raise_error
-      lambda { @permissions.may?(@admin, 'missing_action') }.should raise_error
+      lambda { @permissions.may?(@user, 'missing_action') }.should raise_error(Aegis::MissingAction)
+      lambda { @permissions.may?(@admin, 'missing_action') }.should raise_error(Aegis::MissingAction)
     end
 
   end

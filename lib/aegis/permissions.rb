@@ -8,7 +8,7 @@ module Aegis
 
       def missing_action_means(strategy)
         prepare
-        MISSING_ACTION_STRATEGIES.include?(strategy) or raise ArgumentError, "missing_action_means must be one of #{MISSING_ACTION_STRATEGIES.inspect}"
+        MISSING_ACTION_STRATEGIES.include?(strategy) or raise Aegis::InvalidSyntax, "missing_action_means must be one of #{MISSING_ACTION_STRATEGIES.inspect}"
         @missing_action_strategy = strategy
       end
 
@@ -25,7 +25,7 @@ module Aegis
       end
 
       def permission(*args)
-        raise "The Aegis API has changed. See http://wiki.github.com/makandra/aegis/upgrading-to-aegis-2 for migration instructions."
+        raise Aegis::InvalidSyntax, "The Aegis API has changed. See http://wiki.github.com/makandra/aegis/upgrading-to-aegis-2 for migration instructions."
       end
 
       def action(*args, &block)
@@ -58,7 +58,7 @@ module Aegis
 
       def role(role_name, options = {})
         role_name = role_name.to_s
-        role_name != 'everyone' or raise "Cannot define a role named: #{role_name}"
+        role_name != 'everyone' or raise Aegis::InvalidSyntax, "Cannot define a role named: #{role_name}"
         @roles_by_name ||= {}
         @roles_by_name[role_name] = Aegis::Role.new(role_name, options)
       end
@@ -104,6 +104,7 @@ module Aegis
       private
 
       def query_action(verb, user, path, *args)
+        prepare
         user = handle_missing_user(user)
         action = find_action_by_path(path)
         action.send(verb, user, *args)
@@ -111,7 +112,7 @@ module Aegis
 
       def handle_missing_user(possibly_missing_user)
         possibly_missing_user ||= case @missing_user_strategy
-          when :error then raise "Cannot check permission without a user"
+          when :error then raise Aegis::MissingUser, "Cannot check permission without a user"
           when Proc then @missing_user_strategy.call
         end
       end
@@ -121,7 +122,7 @@ module Aegis
           when :default_permission then Aegis::Action.undefined
           when :allow then Aegis::Action.allow_to_all
           when :deny then Aegis::Action.deny_to_all
-          when :error then raise "Undefined Aegis action: #{action}"
+          when :error then raise Aegis::MissingAction, "Undefined Aegis action: #{action}"
         end
       end
 

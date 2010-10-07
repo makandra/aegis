@@ -17,8 +17,10 @@ module Aegis
     end
 
     def action(*args, &block)
-      # useful warning for people upgrading from Aegis 2
-      raise "action blocks do not take block arguments. allow/deny blocks do." if block && block.arity > 0
+      if block && block.arity > 0
+        # useful warning for people upgrading from Aegis 2
+        raise Aegis::InvalidSyntax, "Action blocks do not take block arguments in Aegis 2. allow/deny blocks do."
+      end
       split_definitions(*args) do |name, options|
         @atoms.push({
           :type => :action,
@@ -83,7 +85,7 @@ module Aegis
     end
 
     def reading(&block)
-      block or raise "missing block"
+      block or raise Aegis::InvalidSyntax, "missing block"
       @atoms.push({
         :type => :reading,
         :children => Aegis::Parser.parse(&block)
@@ -91,7 +93,7 @@ module Aegis
     end
 
     def writing(&block)
-      block or raise "missing block"
+      block or raise Aegis::InvalidSyntax, "missing block"
       @atoms.push({
         :type => :writing,
         :children => Aegis::Parser.parse(&block)
