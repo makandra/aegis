@@ -47,7 +47,7 @@ module Aegis
               actions_map
             )
             args = []
-            args << send(user_method)
+            args << permissions.call.send(:handle_missing_user, send(user_method))
             args << send(parent_object_method) if action.takes_parent_object
             args << send(object_method) if action.takes_object
             action.may!(*args)

@@ -69,9 +69,9 @@ describe Aegis::Controller do
       end
       controller = @controller_class.new
       permissions_class.stub(:guess_action => stub('action', :takes_object => true, :takes_parent_object => true).as_null_object)
-      controller.should_receive(:object)
-      controller.should_receive(:parent_object)
-      controller.should_receive(:current_user)
+      controller.should_receive(:object).and_return('the object')
+      controller.should_receive(:parent_object).and_return('the parent object')
+      controller.should_receive(:current_user).and_return('the user')
       controller.send(:check_permissions)
     end
 
@@ -82,9 +82,9 @@ describe Aegis::Controller do
       end
       controller = @controller_class.new
       permissions_class.stub(:guess_action => stub('action', :takes_object => true, :takes_parent_object => true).as_null_object)
-      controller.should_receive(:my_object)
-      controller.should_receive(:my_parent)
-      controller.should_receive(:my_user)
+      controller.should_receive(:my_object).and_return('the object')
+      controller.should_receive(:my_parent).and_return('the parent object')
+      controller.should_receive(:my_user).and_return('the user')
       controller.send(:check_permissions)
     end
 
