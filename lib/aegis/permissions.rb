@@ -12,9 +12,9 @@ module Aegis
         @missing_action_strategy = strategy
       end
 
-      def missing_user_means(&strategy)
+      def missing_user_means(strategy_symbol = nil, &strategy_block)
         prepare
-        @missing_user_strategy = strategy
+        @missing_user_strategy = strategy_symbol || strategy_block
       end
 
       def alias_action(aliases)

@@ -579,7 +579,14 @@ describe Aegis::Permissions do
 
   describe 'behavior when checking permissions without a user' do
 
-    it "should raise an error if the user is nil" do
+    it "should raise an error if no missing user strategy is defined" do
+      expect { @permissions.may?(nil, :some_action) }.to raise_error(Aegis::MissingUser)
+    end
+
+    it 'should raise an error if the missing user strategy is :error' do
+      @permissions.class_eval do
+        missing_user_means :error
+      end
       expect { @permissions.may?(nil, :some_action) }.to raise_error(Aegis::MissingUser)
     end
 
