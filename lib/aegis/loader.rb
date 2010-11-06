@@ -4,7 +4,7 @@ module Aegis
 
       def paths
         [ 'ostruct',
-
+          'aegis/util',
           'aegis/errors',
           'aegis/action',
           'aegis/compiler',

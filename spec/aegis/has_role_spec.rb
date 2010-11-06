@@ -151,6 +151,12 @@ describe Aegis::HasRole do
       lambda { user.nonexisting_method }.should raise_error(NoMethodError)
     end
 
+    it 'should define a missing Aegis method so that method is used directly from there on' do
+      user = @user_class.new
+      user.should_receive_and_execute(:method_missing).once
+      2.times { user.may_do_action? }
+    end
+
   end
 
   describe 'respond_to?' do

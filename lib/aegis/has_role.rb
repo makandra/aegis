@@ -29,8 +29,7 @@ module Aegis
         role_names.include?(role_name.to_s)
       end
       
-      prototype = respond_to?(:singleton_class) ? singleton_class : metaclass
-      prototype.send :define_method, :validates_role do |*validate_options|
+      Aegis::Util.define_class_method(self, :validates_role) do |*validate_options|
         validate_options = validate_options[0] || {}
 
         send :define_method, :validate_role do
@@ -66,9 +65,11 @@ module Aegis
         send :define_method, :method_missing_with_aegis_permissions do |symb, *args|
           method_name = symb.to_s
           if method_name =~ may_pattern
-            action_path = $1
-            severity = $2
-            permissions.call.send("may#{severity}", self, action_path, *args)
+            action_path, severity = $1, $2
+            Aegis::Util.define_class_method(self, method_name) do |*method_args|
+              permissions.call.send("may#{severity}", self, action_path, *method_args)
+            end
+            send(method_name, *args)
           else
             method_missing_without_aegis_permissions(symb, *args)
           end
@@ -77,12 +78,8 @@ module Aegis
         alias_method_chain :method_missing, :aegis_permissions
 
         send :define_method, :respond_to_with_aegis_permissions? do |symb, *args|
-          if symb.to_s =~ may_pattern
-            true
-          else
-            include_private = args.first.nil? ? false : args.first
-            respond_to_without_aegis_permissions?(symb, include_private)
-          end
+          include_private = args.first.nil? ? false : args.first
+          respond_to_without_aegis_permissions?(symb, include_private) || (symb.to_s =~ may_pattern)
         end
 
         alias_method_chain :respond_to?, :aegis_permissions
