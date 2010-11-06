@@ -632,12 +632,12 @@ describe Aegis::Permissions do
       @permissions.may?(@admin, 'missing_action').should be_false
     end
 
-    it "should raise an error if the strategy is :error" do
+    it "should raise an error naming the missing action if the strategy is :error" do
       @permissions.class_eval do
         missing_action_means :error
       end
-      lambda { @permissions.may?(@user, 'missing_action') }.should raise_error(Aegis::MissingAction)
-      lambda { @permissions.may?(@admin, 'missing_action') }.should raise_error(Aegis::MissingAction)
+      lambda { @permissions.may?(@user, 'missing_action') }.should raise_error(Aegis::MissingAction, 'Missing action: missing_action')
+      lambda { @permissions.may?(@admin, 'missing_action') }.should raise_error(Aegis::MissingAction, 'Missing action: missing_action')
     end
 
   end

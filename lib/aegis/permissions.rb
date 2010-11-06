@@ -75,16 +75,17 @@ module Aegis
         compile
         action = nil
         action_name = action_name.to_s
-        guess_action_paths(resource_name, action_name, map).detect do |path|
+        possible_paths = guess_action_paths(resource_name, action_name, map)
+        possible_paths.detect do |path|
           action = find_action_by_path(path, false)
         end
-        handle_missing_action(action)
+        handle_missing_action(action, possible_paths.first)
       end
 
       def find_action_by_path(path, handle_missing = true)
         compile
         action = @actions_by_path[path.to_s]
-        action = handle_missing_action(action) if handle_missing
+        action = handle_missing_action(action, path) if handle_missing
         action
       end
 
@@ -117,12 +118,12 @@ module Aegis
         end
       end
 
-      def handle_missing_action(possibly_missing_action)
+      def handle_missing_action(possibly_missing_action, path)
         possibly_missing_action ||= case @missing_action_strategy
           when :default_permission then Aegis::Action.undefined
           when :allow then Aegis::Action.allow_to_all
           when :deny then Aegis::Action.deny_to_all
-          when :error then raise Aegis::MissingAction, "Undefined Aegis action: #{action}"
+          when :error then raise Aegis::MissingAction, "Missing action: #{path}"
         end
       end
 
