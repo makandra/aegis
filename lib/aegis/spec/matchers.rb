@@ -44,15 +44,40 @@ module Aegis
         CheckPermissions.new(*args)
       end
 
-      def be_allowed_to(*args)
-        simple_matcher do |user, matcher|
-          action, *action_args = args
-          target = action.to_s + (action_args.present? ? " given #{action_args.inspect}" : "")
-          matcher.description = "be allowed to " + target
-          matcher.failure_message = "expected #{user.inspect} to be allowed to #{target}"
-          matcher.negative_failure_message = "expected #{user.inspect} to be denied to #{target}"
-          user.send("may_#{action}?", *action_args)
+      class BeAllowedTo
+
+        def initialize(expected_action, *expected_args)
+          @expected_action = expected_action
+          @expected_args = expected_args
         end
+
+        def matches?(user)
+          @actual_user = user
+          @actual_user.send("may_#{@expected_action}?", *@expected_args)
+        end
+
+        def description
+          "be allowed to #{action_as_prose}"
+        end
+
+        def failure_message
+          "expected #{@actual_user.inspect} to be allowed to #{action_as_prose}"
+        end
+
+        def negative_failure_message
+          "expected #{@actual_user.inspect} to be denied to #{action_as_prose}"
+        end
+
+        private
+
+        def action_as_prose
+          @expected_action.to_s + (@expected_args.present? ? " given #{@expected_args.inspect}" : "")
+        end
+
+      end
+
+      def be_allowed_to(*args)
+        BeAllowedTo.new(*args)
       end
 
     end
