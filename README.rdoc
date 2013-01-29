@@ -4,6 +4,11 @@ Aegis is an authorization solution for Ruby on Rails that supports roles and a R
 permission rules. Getting started with Aegis is easy and requires very little integration. As your authorization
 requirements become more complex, Aegis will grow with you.
 
+Note that the author of this gem has created another authorization solution
+called {Consul}[https://github.com/makandra/consul]. Consul has a very different
+approach than Aegis. You might want to compare both solutions and see how they
+fit your requirements.
+
 
 == Getting started
 
