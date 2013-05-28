@@ -4,10 +4,16 @@ Aegis is an authorization solution for Ruby on Rails that supports roles and a R
 permission rules. Getting started with Aegis is easy and requires very little integration. As your authorization
 requirements become more complex, Aegis will grow with you.
 
-Note that the author of this gem has created another authorization solution
-called {Consul}[https://github.com/makandra/consul]. Consul has a very different
-approach than Aegis. You might want to compare both solutions and see how they
-fit your requirements.
+
+== End of life notice!
+
+The authors of this gem have moved on to create {Consul}[https://github.com/makandra/consul], our next-gen
+authorization solution. While Aegis remains a stable solution for Rails 2, this gem is not being developed further.
+
+If you are looking for Rails 3+ support you might want to browse through {forks of Aegis}[https://github.com/bitcababy/aegis/network].
+
+If you are interested in taking over future maintenance of Aegis, write to henning.koch@makandra.de regarding transfer
+of gem ownership. Please attach links to work you did on Aegis in a fork, so we can know you are serious about this.
 
 
 == Getting started
@@ -85,9 +91,9 @@ In Rails 3, add the following to your <tt>Gemfile</tt>:
     gem 'aegis'
 
 
-== Rails 3 compatibility
+== Compatibility
 
-We cannot guarantee Rails 3 compatibility at this point, but we will upgrade the gem when Rails 3 is released.
+Aegis was tested in Rails 2 only. If you are looking for Rails 3+ support you might want to browse through {forks of Aegis}[https://github.com/bitcababy/aegis/network].
 
 
 == Credits
