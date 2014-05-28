@@ -26,7 +26,7 @@ module Aegis
     
       self.class_eval do
       
-        class_inheritable_accessor :aegis_role_name_reader, :aegis_role_name_writer, :aegis_default_role_name
+        class_attribute :aegis_role_name_reader, :aegis_role_name_writer, :aegis_default_role_name
 
         unless method_defined?(:after_initialize)
           def after_initialize
